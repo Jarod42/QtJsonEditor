@@ -1,0 +1,3 @@
+[submodule "submodules/valijson"]
+	path = submodules/valijson
+	url = https://github.com/tristanpenman/valijson.git
