@@ -29,7 +29,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="textEdit_schema"/>
+        <widget class="QTextEdit" name="textEdit_schema">
+         <property name="lineWrapMode">
+          <enum>QTextEdit::NoWrap</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_json">
@@ -39,7 +43,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="textEdit_json"/>
+        <widget class="QTextEdit" name="textEdit_json">
+         <property name="lineWrapMode">
+          <enum>QTextEdit::NoWrap</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
