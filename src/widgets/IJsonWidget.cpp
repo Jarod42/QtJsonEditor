@@ -13,10 +13,55 @@
 #include "widgets/string/enum/ComboBoxWidget.h"
 
 #include <QJsonObject>
+#include <QLabel>
+
+class DescriptiveWidget : public IJsonWidget
+{
+public:
+	DescriptiveWidget(QJsonValue json, QString description)
+	{
+		descriptionLabel.setObjectName(
+			get_unique_name("(DescriptiveWidget)label-"));
+		layout.setObjectName(get_unique_name("(DescriptiveWidget)layout-"));
+
+		auto smallerFont = descriptionLabel.font();
+		smallerFont.setPointSize(smallerFont.pointSize() - 2);
+		smallerFont.setItalic(true);
+		descriptionLabel.setFont(smallerFont);
+		descriptionLabel.setText(description);
+		layout.addWidget(&descriptionLabel);
+		widget = makeWidget(json, "");
+
+		QObject::connect(widget.get(),
+		                 &IJsonWidget::hasChanged,
+		                 this,
+		                 &IJsonWidget::hasChanged);
+
+		layout.addWidget(widget.get());
+		setLayout(&layout);
+	}
+
+	QJsonValue toQJson() const override { return widget->toQJson(); }
+	void fromQJson(QJsonValue json) override
+	{
+		descriptionLabel.setText(json["description"].toString());
+		widget->fromQJson(json);
+	}
+
+private:
+	QLabel descriptionLabel;
+	QVBoxLayout layout;
+	std::unique_ptr<IJsonWidget> widget;
+};
 
 //------------------------------------------------------------------------------
-std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json)
+std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json, QString description)
 {
+	if (!description.isEmpty())
+	{
+		return std::make_unique<DescriptiveWidget>(json, description);
+	}
+
 	const auto type = json["type"];
 
 	if (type == "string")

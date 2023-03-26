@@ -175,7 +175,7 @@ void EditorDialog::updateJsonWidgets()
 	if (parseError.error == QJsonParseError::NoError)
 	{
 		auto json = doc.object();
-		widget = makeWidget(json);
+		widget = makeWidget(json, json["description"].toString());
 		ui->verticalLayout_frame->addWidget(widget.get());
 		QObject::connect(widget.get(),
 		                 &IJsonWidget::hasChanged,

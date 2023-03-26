@@ -19,7 +19,7 @@ Q_SIGNALS:
 	void hasChanged();
 };
 
-std::unique_ptr<IJsonWidget> makeWidget(QJsonValue);
+std::unique_ptr<IJsonWidget> makeWidget(QJsonValue, QString description);
 
 inline QString get_unique_name(const QString& prefix)
 {
