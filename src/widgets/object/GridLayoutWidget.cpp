@@ -74,12 +74,9 @@ namespace object
 	//--------------------------------------------------------------------------
 	void GridLayoutWidget::fromQJson(QJsonValue json) /*override*/
 	{
-		auto it = jsonWidgets.begin();
-		for (const auto& inner : json.toObject())
+		for (auto& labeledWidget : jsonWidgets)
 		{
-			(*it)->jsonWidget->fromQJson(inner);
-			++it;
-			if (it == jsonWidgets.end()) { return; }
+			labeledWidget->jsonWidget->fromQJson(json[labeledWidget->name]);
 		}
 	}
 

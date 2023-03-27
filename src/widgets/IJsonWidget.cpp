@@ -42,11 +42,7 @@ public:
 	}
 
 	QJsonValue toQJson() const override { return widget->toQJson(); }
-	void fromQJson(QJsonValue json) override
-	{
-		descriptionLabel.setText(json["description"].toString());
-		widget->fromQJson(json);
-	}
+	void fromQJson(QJsonValue json) override { widget->fromQJson(json); }
 
 private:
 	QLabel descriptionLabel;
