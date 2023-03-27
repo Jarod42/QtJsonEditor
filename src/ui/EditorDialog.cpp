@@ -154,6 +154,10 @@ EditorDialog::EditorDialog(QWidget* parent) :
 	                 &QTextEdit::textChanged,
 	                 this,
 	                 &EditorDialog::updateJsonWidgets);
+	QObject::connect(ui->widget,
+	                 &QJsonWidget::hasChanged,
+	                 this,
+	                 &EditorDialog::updateJsonTextValues);
 
 	ui->textEdit_schema->setText(schema); // trigger above message
 	updateJsonTextValues();
@@ -175,21 +179,14 @@ void EditorDialog::updateJsonWidgets()
 	if (parseError.error == QJsonParseError::NoError)
 	{
 		auto json = doc.object();
-		widget = makeWidget(json, json["description"].toString());
-		ui->verticalLayout_frame->addWidget(widget.get());
-		QObject::connect(widget.get(),
-		                 &IJsonWidget::hasChanged,
-		                 this,
-		                 &EditorDialog::updateJsonTextValues);
+		ui->widget->setSchema(json);
 	}
 	state = EState::Ready;
-	updateJsonWidgetValues();
 }
 
 //------------------------------------------------------------------------------
 void EditorDialog::updateJsonWidgetValues()
 {
-	if (!widget) { return; }
 	if (state != EState::Ready) { return; }
 
 	QJsonParseError parseError;
@@ -214,7 +211,7 @@ void EditorDialog::updateJsonWidgetValues()
 #endif
 	state = EState::UpdatingWidgetValues;
 	auto json = doc.object();
-	widget->fromQJson(json);
+	ui->widget->setValue(json);
 
 	state = EState::Ready;
 	updateJsonTextValues();
@@ -223,11 +220,10 @@ void EditorDialog::updateJsonWidgetValues()
 //------------------------------------------------------------------------------
 void EditorDialog::updateJsonTextValues()
 {
-	if (!widget) { return; }
 	if (state != EState::Ready) { return; }
 	state = EState::UpdatingJson;
 
-	auto json = widget->toQJson();
+	auto json = ui->widget->getValue();
 	auto doc = QJsonDocument(json.toObject());
 	auto plainText = QString::fromUtf8(doc.toJson(QJsonDocument::Indented));
 

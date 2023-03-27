@@ -1,7 +1,5 @@
 #pragma once
 
-#include "widgets/IJsonWidget.h"
-
 #include <QDialog>
 #include <memory>
 
@@ -27,6 +25,5 @@ private:
 	enum class EState : char;
 
 	std::unique_ptr<Ui::EditorDialog> ui;
-	std::unique_ptr<IJsonWidget> widget;
 	EState state;
 };

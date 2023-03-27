@@ -62,9 +62,21 @@ workspace "qt-json-editor"
   startproject "qt-json-editor"
   project "qt-json-editor"
     kind "ConsoleApp"
-    files { "src/**.cpp", "src/**.h", "src/**.ui" }
+    files { "src/main.cpp", "src/ui/**.*" }
 
     includedirs "src"
     includedirs "submodules/valijson/include"
 
     qtmodules { "core", "gui", "widgets" }
+
+    links "qt-json-widget"
+
+  project "qt-json-widget"
+    kind "StaticLib"
+    files { "src/widgets/**.*" }
+
+    includedirs "src"
+    includedirs "submodules/valijson/include"
+
+    qtmodules { "core", "gui", "widgets" }
+
