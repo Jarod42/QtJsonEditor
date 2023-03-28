@@ -2,6 +2,7 @@
 
 #include "widgets/IJsonWidget.h"
 
+#include <QDoubleValidator>
 #include <QLineEdit>
 
 namespace number
@@ -17,5 +18,6 @@ namespace number
 	private:
 		QHBoxLayout layout;
 		QLineEdit lineEdit;
+		QDoubleValidator validator;
 	};
 } // namespace number

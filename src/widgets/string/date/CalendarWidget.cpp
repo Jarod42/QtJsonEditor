@@ -7,9 +7,12 @@ CalendarWidget::CalendarWidget(QJsonValue json)
 {
 	calendarWidget.setObjectName(get_unique_name("calendarWidget-"));
 
-	QDate date =
-		QDate::fromString(json["default"].toString(), Qt::DateFormat::ISODate);
-	calendarWidget.setSelectedDate(date);
+	calendarWidget.setMinimumDate(
+		QDate::fromString(json["minimum"].toString(), Qt::DateFormat::ISODate));
+	calendarWidget.setMaximumDate(
+		QDate::fromString(json["maximum"].toString(), Qt::DateFormat::ISODate));
+	calendarWidget.setSelectedDate(
+		QDate::fromString(json["default"].toString(), Qt::DateFormat::ISODate));
 	QObject::connect(&calendarWidget,
 	                 &QCalendarWidget::selectionChanged,
 	                 this,

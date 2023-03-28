@@ -5,9 +5,12 @@ DateEditWidget::DateEditWidget(QJsonValue json)
 {
 	dateEdit.setObjectName(get_unique_name("dateEdit-"));
 
-	QDate date =
-		QDate::fromString(json["default"].toString(), Qt::DateFormat::ISODate);
-	dateEdit.setDate(date);
+	dateEdit.setMinimumDate(
+		QDate::fromString(json["minimum"].toString(), Qt::DateFormat::ISODate));
+	dateEdit.setMaximumDate(
+		QDate::fromString(json["maximum"].toString(), Qt::DateFormat::ISODate));
+	dateEdit.setDate(
+		QDate::fromString(json["default"].toString(), Qt::DateFormat::ISODate));
 	QObject::connect(
 		&dateEdit, &QDateEdit::dateChanged, this, &IJsonWidget::hasChanged);
 	layout.addWidget(&dateEdit);

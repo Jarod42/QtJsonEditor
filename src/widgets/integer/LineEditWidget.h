@@ -2,6 +2,7 @@
 
 #include "widgets/IJsonWidget.h"
 
+#include <QIntValidator>
 #include <QLineEdit>
 
 namespace integer
@@ -18,6 +19,7 @@ namespace integer
 	private:
 		QHBoxLayout layout;
 		QLineEdit lineEdit;
+		QIntValidator validator;
 	};
 
 } // namespace integer

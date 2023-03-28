@@ -7,6 +7,12 @@ namespace number
 	LineEditWidget::LineEditWidget(QJsonValue json)
 	{
 		lineEdit.setObjectName(get_unique_name("lineEdit-"));
+		validator.setBottom(
+			json["minimum"].toDouble(std::numeric_limits<double>::min()));
+		validator.setTop(
+			json["maximum"].toDouble(std::numeric_limits<double>::max()));
+
+		lineEdit.setValidator(&validator);
 		lineEdit.setText(QString::number(json["default"].toDouble()));
 		lineEdit.setPlaceholderText(json["placeholder"].toString());
 		QObject::connect(
