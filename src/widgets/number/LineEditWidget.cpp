@@ -1,5 +1,7 @@
 #include "LineEditWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 namespace number
 {
 
@@ -7,14 +9,16 @@ namespace number
 	LineEditWidget::LineEditWidget(QJsonValue json)
 	{
 		lineEdit.setObjectName(get_unique_name("lineEdit-"));
-		validator.setBottom(
-			json["minimum"].toDouble(std::numeric_limits<double>::min()));
-		validator.setTop(
-			json["maximum"].toDouble(std::numeric_limits<double>::max()));
+		validator.setBottom(json[json_keys::key_minimum].toDouble(
+			std::numeric_limits<double>::min()));
+		validator.setTop(json[json_keys::key_maximum].toDouble(
+			std::numeric_limits<double>::max()));
 
 		lineEdit.setValidator(&validator);
-		lineEdit.setText(QString::number(json["default"].toDouble()));
-		lineEdit.setPlaceholderText(json["placeholder"].toString());
+		lineEdit.setText(
+			QString::number(json[json_keys::key_default].toDouble()));
+		lineEdit.setPlaceholderText(
+			json[json_keys::key_placeholder].toString());
 		QObject::connect(
 			&lineEdit, &QLineEdit::textChanged, this, &IJsonWidget::hasChanged);
 

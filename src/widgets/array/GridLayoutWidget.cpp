@@ -1,5 +1,7 @@
 #include "GridLayoutWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 #include <QJsonArray>
 
 namespace array
@@ -36,7 +38,8 @@ namespace array
 								 }
 								 emit parent.hasChanged();
 							 });
-			jsonWidget = makeWidget(json, json["description"].toString());
+			jsonWidget =
+				makeWidget(json, json[json_keys::key_description].toString());
 			hLayout.addWidget(jsonWidget.get());
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,
@@ -62,7 +65,7 @@ namespace array
 		buttonNew.setText("Add");
 		createItem = [&, this]() {
 			jsonWidgets.push_back(std::make_unique<OrderedWidget>(
-				*this, grid_layout, this->jsonSchema["items"]));
+				*this, grid_layout, this->jsonSchema[json_keys::key_items]));
 		};
 
 		QObject::connect(&buttonNew, &QPushButton::clicked, [&, this]() {
@@ -70,7 +73,7 @@ namespace array
 			emit this->hasChanged();
 		});
 		setLayout(&grid_layout);
-		auto initial = jsonSchema["default"];
+		auto initial = jsonSchema[json_keys::key_default];
 		fromQJson(initial);
 	}
 

@@ -4,6 +4,7 @@
 #include "widgets/boolean/CheckBoxWidget.h"
 #include "widgets/integer/LineEditWidget.h"
 #include "widgets/integer/SpinBoxWidget.h"
+#include "widgets/jsonKeys.h"
 #include "widgets/number/LineEditWidget.h"
 #include "widgets/object/GridLayoutWidget.h"
 #include "widgets/string/LineEditWidget.h"
@@ -58,49 +59,49 @@ std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json, QString description)
 		return std::make_unique<DescriptiveWidget>(json, description);
 	}
 
-	const auto type = json["type"];
+	const auto type = json[json_keys::key_type];
 
-	if (type == "string")
+	if (type == json_keys::type_string)
 	{
-		if (json.toObject().contains("enum"))
+		if (json.toObject().contains(json_keys::key_enum))
 		{
 			return std::make_unique<string::ComboBoxWidget>(json);
 		}
-		const auto format = json["format"];
-		if (format == "color")
+		const auto format = json[json_keys::key_format];
+		if (format == json_keys::format_color)
 		{
 			return std::make_unique<ColorDialogButtonWidget>(json);
 		}
-		else if (format == "date")
+		else if (format == json_keys::format_date)
 		{
 			return std::make_unique<CalendarWidget>(json);
 			//return std::make_unique<DateEditWidget>(json);
 		}
 		return std::make_unique<string::LineEditWidget>(json);
 	}
-	else if (type == "integer")
+	else if (type == json_keys::type_integer)
 	{
 		//return std::make_unique<integer::SpinBoxWidget>(json);
 		return std::make_unique<integer::LineEditWidget>(json);
 	}
-	else if (type == "number")
+	else if (type == json_keys::type_number)
 	{
 		return std::make_unique<number::LineEditWidget>(json);
 	}
-	else if (type == "boolean")
+	else if (type == json_keys::type_boolean)
 	{
 		return std::make_unique<boolean::CheckBoxWidget>(json);
 	}
-	else if (type == "null")
+	else if (type == json_keys::type_null)
 	{
 		// TODO
 		return nullptr;
 	}
-	else if (type == "array")
+	else if (type == json_keys::type_array)
 	{
 		return std::make_unique<array::GridLayoutWidget>(json);
 	}
-	else if (type == "object")
+	else if (type == json_keys::type_object)
 	{
 		return std::make_unique<object::GridLayoutWidget>(json);
 	}

@@ -1,5 +1,7 @@
 #include "GridLayoutWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 #include <QJsonObject>
 #include <QLabel>
 
@@ -20,7 +22,8 @@ namespace object
 			const auto row = grid_layout.rowCount();
 			grid_layout.addWidget(&label, row, 0);
 			label.setText(name + ":");
-			jsonWidget = makeWidget(json, json["description"].toString());
+			jsonWidget =
+				makeWidget(json, json[json_keys::key_description].toString());
 			grid_layout.addWidget(jsonWidget.get(), row, 1);
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,
@@ -44,9 +47,13 @@ namespace object
 		const auto byPropertyOrderThenName = [&](const QString& lhs,
 		                                         const QString& rhs) {
 			return std::forward_as_tuple(
-					   properties[lhs]["propertyOrder"].toInt(1000), lhs)
+					   properties[lhs][json_keys::key_propertyOrder].toInt(
+						   1000),
+					   lhs)
 			     < std::forward_as_tuple(
-					   properties[rhs]["propertyOrder"].toInt(1000), rhs);
+					   properties[rhs][json_keys::key_propertyOrder].toInt(
+						   1000),
+					   rhs);
 		};
 		std::sort(
 			sortedKeys.begin(), sortedKeys.end(), byPropertyOrderThenName);

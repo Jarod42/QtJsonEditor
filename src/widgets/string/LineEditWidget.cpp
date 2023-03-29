@@ -1,13 +1,16 @@
 #include "LineEditWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 namespace string
 {
 	//--------------------------------------------------------------------------
 	LineEditWidget::LineEditWidget(QJsonValue json)
 	{
 		lineEdit.setObjectName(get_unique_name("lineEdit-"));
-		lineEdit.setText(json["default"].toString());
-		lineEdit.setPlaceholderText(json["placeholder"].toString());
+		lineEdit.setText(json[json_keys::key_default].toString());
+		lineEdit.setPlaceholderText(
+			json[json_keys::key_placeholder].toString());
 
 		QObject::connect(
 			&lineEdit, &QLineEdit::textChanged, this, &IJsonWidget::hasChanged);

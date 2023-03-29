@@ -1,5 +1,7 @@
 #include "CheckBoxWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 namespace boolean
 {
 
@@ -7,7 +9,7 @@ namespace boolean
 	CheckBoxWidget::CheckBoxWidget(QJsonValue json)
 	{
 		checkBox.setObjectName(get_unique_name("checkBox-"));
-		checkBox.setChecked(json["default"].toBool());
+		checkBox.setChecked(json[json_keys::key_default].toBool());
 		QObject::connect(&checkBox,
 		                 &QCheckBox::stateChanged,
 		                 this,

@@ -1,14 +1,16 @@
 #include "SpinBoxWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 namespace integer
 {
 	//--------------------------------------------------------------------------
 	SpinBoxWidget::SpinBoxWidget(QJsonValue json)
 	{
 		spinBox.setObjectName(get_unique_name("spinBox-"));
-		spinBox.setMinimum(json["minimum"].toInt());
-		spinBox.setMaximum(json["maximum"].toInt());
-		spinBox.setValue(json["default"].toInt());
+		spinBox.setMinimum(json[json_keys::key_minimum].toInt());
+		spinBox.setMaximum(json[json_keys::key_maximum].toInt());
+		spinBox.setValue(json[json_keys::key_default].toInt());
 
 		QObject::connect(
 			&spinBox,

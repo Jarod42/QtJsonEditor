@@ -1,5 +1,7 @@
 #include "QJsonWidget.h"
 
+#include "widgets/jsonKeys.h"
+
 //------------------------------------------------------------------------------
 QJsonWidget::QJsonWidget(QWidget* parent) : QWidget(parent)
 {
@@ -19,10 +21,15 @@ void QJsonWidget::setSchema(QJsonValue schema)
 	{
 		layout.removeWidget(widget.get());
 		const auto oldValue = widget->toQJson();
-		widget = makeWidget(schema, schema["description"].toString());
+		widget =
+			makeWidget(schema, schema[json_keys::key_description].toString());
 		widget->fromQJson(oldValue);
 	}
-	else { widget = makeWidget(schema, schema["description"].toString()); }
+	else
+	{
+		widget =
+			makeWidget(schema, schema[json_keys::key_description].toString());
+	}
 	QObject::connect(
 		widget.get(), &IJsonWidget::hasChanged, this, &QJsonWidget::hasChanged);
 	emit hasChanged();
