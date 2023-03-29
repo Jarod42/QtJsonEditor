@@ -8,6 +8,11 @@
 namespace object
 {
 
+	namespace
+	{
+		constexpr auto defaultPropertyOrder = 1000;
+	} // namespace
+
 	//--------------------------------------------------------------------------
 	struct GridLayoutWidget::LabeledWidget
 	{
@@ -48,11 +53,11 @@ namespace object
 		                                         const QString& rhs) {
 			return std::forward_as_tuple(
 					   properties[lhs][json_keys::key_propertyOrder].toInt(
-						   1000),
+						   defaultPropertyOrder),
 					   lhs)
 			     < std::forward_as_tuple(
 					   properties[rhs][json_keys::key_propertyOrder].toInt(
-						   1000),
+						   defaultPropertyOrder),
 					   rhs);
 		};
 		std::sort(
