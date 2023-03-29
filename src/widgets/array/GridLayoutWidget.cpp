@@ -21,7 +21,7 @@ namespace array
 
 			const auto row = grid_layout.rowCount();
 			grid_layout.addLayout(&hLayout, row, 0);
-			buttonDelete.setText("Delete");
+			buttonDelete.setText(tr("Delete"));
 			grid_layout.addWidget(&buttonDelete, row, 1);
 			QObject::connect(&buttonDelete,
 			                 &QPushButton::clicked,
@@ -62,7 +62,7 @@ namespace array
 			get_unique_name("(GridLayoutWidget)buttonNew-"));
 
 		grid_layout.addWidget(&buttonNew, 0, 0, 1, 2);
-		buttonNew.setText("Add");
+		buttonNew.setText(tr("Add"));
 		createItem = [&, this]() {
 			jsonWidgets.push_back(std::make_unique<OrderedWidget>(
 				*this, grid_layout, this->jsonSchema[json_keys::key_items]));

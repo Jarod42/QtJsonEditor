@@ -21,7 +21,7 @@ namespace object
 
 			const auto row = grid_layout.rowCount();
 			grid_layout.addWidget(&label, row, 0);
-			label.setText(name + ":");
+			label.setText(tr("%1:").arg(name));
 			jsonWidget =
 				makeWidget(json, json[json_keys::key_description].toString());
 			grid_layout.addWidget(jsonWidget.get(), row, 1);
