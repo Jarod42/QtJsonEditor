@@ -1,5 +1,6 @@
 #include "IJsonWidget.h"
 
+#include "widgets/JsonReferenceResolver.h"
 #include "widgets/array/GridLayoutWidget.h"
 #include "widgets/boolean/CheckBoxWidget.h"
 #include "widgets/integer/LineEditWidget.h"
@@ -20,7 +21,9 @@
 class DescriptiveWidget : public IJsonWidget
 {
 public:
-	DescriptiveWidget(QJsonValue json, QString description)
+	DescriptiveWidget(const JsonReferenceResolver& jsonReferenceResolver,
+	                  QJsonValue json,
+	                  QString description)
 	{
 		descriptionLabel.setObjectName(
 			get_unique_name("(DescriptiveWidget)label-"));
@@ -32,7 +35,7 @@ public:
 		descriptionLabel.setFont(smallerFont);
 		descriptionLabel.setText(description);
 		layout.addWidget(&descriptionLabel);
-		widget = makeWidget(json, EDescription::Without);
+		widget = makeWidget(jsonReferenceResolver, json, EDescription::Without);
 
 		QObject::connect(widget.get(),
 		                 &IJsonWidget::hasChanged,
@@ -53,15 +56,46 @@ private:
 };
 
 //------------------------------------------------------------------------------
-std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json,
-                                        EDescription descriptionMode)
+class LabelWidget : public IJsonWidget
 {
+public:
+	LabelWidget(QString text)
+	{
+		label.setObjectName(get_unique_name("(LabelWidget)label-"));
+		layout.setObjectName(get_unique_name("(LabelWidget)layout-"));
+
+		label.setText(text);
+		layout.addWidget(&label);
+
+		setLayout(&layout);
+	}
+
+	QJsonValue toQJson() const override { return {}; }
+	void fromQJson(QJsonValue) override {}
+
+private:
+	QLabel label;
+	QVBoxLayout layout;
+};
+
+//------------------------------------------------------------------------------
+std::unique_ptr<IJsonWidget>
+makeWidget(const JsonReferenceResolver& jsonReferenceResolver,
+           QJsonValue json,
+           EDescription descriptionMode)
+{
+	auto ref = json[json_keys::key_ref].toString();
+	if (!ref.isEmpty())
+	{
+		json = jsonReferenceResolver.resolveReference(ref, json);
+	}
 	if (descriptionMode == EDescription::With)
 	{
 		QString description = json[json_keys::key_description].toString();
 		if (!description.isEmpty())
 		{
-			return std::make_unique<DescriptiveWidget>(json, description);
+			return std::make_unique<DescriptiveWidget>(
+				jsonReferenceResolver, json, description);
 		}
 	}
 
@@ -104,11 +138,13 @@ std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json,
 	}
 	else if (type == json_keys::type_array)
 	{
-		return std::make_unique<array::GridLayoutWidget>(json);
+		return std::make_unique<array::GridLayoutWidget>(jsonReferenceResolver,
+		                                                 json);
 	}
 	else if (type == json_keys::type_object)
 	{
-		return std::make_unique<object::GridLayoutWidget>(json);
+		return std::make_unique<object::GridLayoutWidget>(jsonReferenceResolver,
+		                                                  json);
 	}
-	return nullptr;
+	return std::make_unique<LabelWidget>("Not supported type (or missing)");
 }

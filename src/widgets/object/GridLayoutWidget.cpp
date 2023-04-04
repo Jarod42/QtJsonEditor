@@ -19,6 +19,7 @@ namespace object
 		LabeledWidget(QString name,
 		              GridLayoutWidget& parent,
 		              QGridLayout& grid_layout,
+		              const JsonReferenceResolver& jsonReferenceResolver,
 		              QJsonValue json) :
 			name(name)
 		{
@@ -27,7 +28,7 @@ namespace object
 			const auto row = grid_layout.rowCount();
 			grid_layout.addWidget(&label, row, 0);
 			label.setText(tr("%1:").arg(name));
-			jsonWidget = makeWidget(json);
+			jsonWidget = makeWidget(jsonReferenceResolver, json);
 			grid_layout.addWidget(jsonWidget.get(), row, 1);
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,
@@ -41,7 +42,8 @@ namespace object
 	};
 
 	//--------------------------------------------------------------------------
-	GridLayoutWidget::GridLayoutWidget(QJsonValue json)
+	GridLayoutWidget::GridLayoutWidget(
+		const JsonReferenceResolver& jsonReferenceResolver, QJsonValue json)
 	{
 		grid_layout.setObjectName(
 			get_unique_name("(GridLayoutWidget)gridLayout-"));
@@ -64,8 +66,12 @@ namespace object
 
 		for (const auto& key : sortedKeys)
 		{
-			jsonWidgets.push_back(std::make_unique<LabeledWidget>(
-				key, *this, grid_layout, properties[key]));
+			jsonWidgets.push_back(
+				std::make_unique<LabeledWidget>(key,
+			                                    *this,
+			                                    grid_layout,
+			                                    jsonReferenceResolver,
+			                                    properties[key]));
 		}
 		setLayout(&grid_layout);
 	}

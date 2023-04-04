@@ -12,6 +12,7 @@ namespace json_keys
 	inline constexpr auto key_maximum = "maximum";
 	inline constexpr auto key_placeholder = "placeholder";
 	inline constexpr auto key_propertyOrder = "propertyOrder";
+	inline constexpr auto key_ref = "$ref";
 	inline constexpr auto key_type = "type";
 
 	inline constexpr auto format_color = "color";

@@ -13,6 +13,7 @@ namespace array
 		//----------------------------------------------------------------------
 		OrderedWidget(GridLayoutWidget& parent,
 		              QGridLayout& grid_layout,
+		              const JsonReferenceResolver& jsonReferenceResolver,
 		              QJsonValue json)
 		{
 			hLayout.setObjectName(get_unique_name("(OrderedWidget)hLayout-"));
@@ -38,7 +39,7 @@ namespace array
 								 }
 								 emit parent.hasChanged();
 							 });
-			jsonWidget = makeWidget(json);
+			jsonWidget = makeWidget(jsonReferenceResolver, json);
 			hLayout.addWidget(jsonWidget.get());
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,
@@ -52,7 +53,9 @@ namespace array
 	};
 
 	//--------------------------------------------------------------------------
-	GridLayoutWidget::GridLayoutWidget(QJsonValue jsonSchema) :
+	GridLayoutWidget::GridLayoutWidget(
+		const JsonReferenceResolver& jsonReferenceResolver,
+		QJsonValue jsonSchema) :
 		jsonSchema(jsonSchema)
 	{
 		grid_layout.setObjectName(
@@ -64,7 +67,10 @@ namespace array
 		buttonNew.setText(tr("Add"));
 		createItem = [&, this]() {
 			jsonWidgets.push_back(std::make_unique<OrderedWidget>(
-				*this, grid_layout, this->jsonSchema[json_keys::key_items]));
+				*this,
+				grid_layout,
+				jsonReferenceResolver,
+				this->jsonSchema[json_keys::key_items]));
 		};
 
 		QObject::connect(&buttonNew, &QPushButton::clicked, [&, this]() {

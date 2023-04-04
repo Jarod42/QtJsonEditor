@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <memory>
 
+class JsonReferenceResolver;
+
 class IJsonWidget : public QWidget
 {
 	Q_OBJECT
@@ -25,7 +27,8 @@ enum class EDescription
 	With
 };
 
-std::unique_ptr<IJsonWidget> makeWidget(QJsonValue,
+std::unique_ptr<IJsonWidget> makeWidget(const JsonReferenceResolver&,
+                                        QJsonValue,
                                         EDescription = EDescription::With);
 
 inline QString get_unique_name(const QString& prefix)

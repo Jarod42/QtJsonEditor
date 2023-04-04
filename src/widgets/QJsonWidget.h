@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IJsonWidget.h"
+#include "JsonReferenceResolver.h"
 
 #include <QBoxLayout>
 #include <QJsonValue>
@@ -26,4 +27,5 @@ signals:
 private:
 	QVBoxLayout layout;
 	std::unique_ptr<IJsonWidget> widget;
+	JsonReferenceResolver jsonReferenceResolver;
 };

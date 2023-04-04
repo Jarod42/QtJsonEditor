@@ -8,7 +8,7 @@ namespace object
 	class GridLayoutWidget : public IJsonWidget
 	{
 	public:
-		explicit GridLayoutWidget(QJsonValue);
+		GridLayoutWidget(const JsonReferenceResolver&, QJsonValue);
 		~GridLayoutWidget() override;
 		QJsonValue toQJson() const override;
 		void fromQJson(QJsonValue) override;
