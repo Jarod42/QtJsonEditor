@@ -11,7 +11,7 @@ class QJsonWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit QJsonWidget(QWidget* parent);
+	explicit QJsonWidget(QWidget* parent = nullptr);
 	~QJsonWidget() noexcept override = default;
 
 	QJsonValue getValue() const;
