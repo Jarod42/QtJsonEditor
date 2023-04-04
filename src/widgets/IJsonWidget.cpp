@@ -32,7 +32,7 @@ public:
 		descriptionLabel.setFont(smallerFont);
 		descriptionLabel.setText(description);
 		layout.addWidget(&descriptionLabel);
-		widget = makeWidget(json, "");
+		widget = makeWidget(json, EDescription::Without);
 
 		QObject::connect(widget.get(),
 		                 &IJsonWidget::hasChanged,
@@ -53,11 +53,16 @@ private:
 };
 
 //------------------------------------------------------------------------------
-std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json, QString description)
+std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json,
+                                        EDescription descriptionMode)
 {
-	if (!description.isEmpty())
+	if (descriptionMode == EDescription::With)
 	{
-		return std::make_unique<DescriptiveWidget>(json, description);
+		QString description = json[json_keys::key_description].toString();
+		if (!description.isEmpty())
+		{
+			return std::make_unique<DescriptiveWidget>(json, description);
+		}
 	}
 
 	const auto type = json[json_keys::key_type];

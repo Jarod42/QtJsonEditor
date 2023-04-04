@@ -27,8 +27,7 @@ namespace object
 			const auto row = grid_layout.rowCount();
 			grid_layout.addWidget(&label, row, 0);
 			label.setText(tr("%1:").arg(name));
-			jsonWidget =
-				makeWidget(json, json[json_keys::key_description].toString());
+			jsonWidget = makeWidget(json);
 			grid_layout.addWidget(jsonWidget.get(), row, 1);
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,

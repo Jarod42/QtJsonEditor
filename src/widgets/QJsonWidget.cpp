@@ -21,15 +21,10 @@ void QJsonWidget::setSchema(QJsonValue schema)
 	{
 		layout.removeWidget(widget.get());
 		const auto oldValue = widget->toQJson();
-		widget =
-			makeWidget(schema, schema[json_keys::key_description].toString());
+		widget = makeWidget(schema);
 		widget->fromQJson(oldValue);
 	}
-	else
-	{
-		widget =
-			makeWidget(schema, schema[json_keys::key_description].toString());
-	}
+	else { widget = makeWidget(schema); }
 	QObject::connect(
 		widget.get(), &IJsonWidget::hasChanged, this, &QJsonWidget::hasChanged);
 	emit hasChanged();

@@ -38,8 +38,7 @@ namespace array
 								 }
 								 emit parent.hasChanged();
 							 });
-			jsonWidget =
-				makeWidget(json, json[json_keys::key_description].toString());
+			jsonWidget = makeWidget(json);
 			hLayout.addWidget(jsonWidget.get());
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,
