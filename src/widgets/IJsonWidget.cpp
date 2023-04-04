@@ -5,6 +5,7 @@
 #include "widgets/integer/LineEditWidget.h"
 #include "widgets/integer/SpinBoxWidget.h"
 #include "widgets/jsonKeys.h"
+#include "widgets/null/LabelWidget.h"
 #include "widgets/number/LineEditWidget.h"
 #include "widgets/object/GridLayoutWidget.h"
 #include "widgets/string/LineEditWidget.h"
@@ -94,8 +95,7 @@ std::unique_ptr<IJsonWidget> makeWidget(QJsonValue json, QString description)
 	}
 	else if (type == json_keys::type_null)
 	{
-		// TODO
-		return nullptr;
+		return std::make_unique<null::LabelWidget>();
 	}
 	else if (type == json_keys::type_array)
 	{
