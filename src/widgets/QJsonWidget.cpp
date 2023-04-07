@@ -19,18 +19,13 @@ QJsonValue QJsonWidget::getValue() const
 void QJsonWidget::setSchema(QJsonValue schema)
 {
 	jsonReferenceResolver.setSchemaRoot(schema);
-	if (widget)
-	{
-		layout.removeWidget(widget.get());
-		const auto oldValue = widget->toQJson();
-		widget = makeWidget(jsonReferenceResolver, schema);
-		widget->fromQJson(oldValue);
-	}
-	else { widget = makeWidget(jsonReferenceResolver, schema); }
+	auto newWidget = makeWidget(jsonReferenceResolver, schema);
+	if (widget) { layout.replaceWidget(widget.get(), newWidget.get()); }
+	else { layout.addWidget(newWidget.get()); }
+	widget = std::move(newWidget);
 	QObject::connect(
 		widget.get(), &IJsonWidget::hasChanged, this, &QJsonWidget::hasChanged);
 	emit hasChanged();
-	layout.addWidget(widget.get());
 }
 
 //------------------------------------------------------------------------------
