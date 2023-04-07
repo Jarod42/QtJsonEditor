@@ -28,7 +28,7 @@ namespace integer
 	//--------------------------------------------------------------------------
 	QJsonValue LineEditWidget::toQJson() const /*override*/
 	{
-		return lineEdit.text().toInt();
+		return QLocale().toInt(lineEdit.text());
 	}
 
 	//--------------------------------------------------------------------------

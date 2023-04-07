@@ -29,7 +29,7 @@ namespace number
 	//--------------------------------------------------------------------------
 	QJsonValue LineEditWidget::toQJson() const /*override*/
 	{
-		return lineEdit.text().toDouble();
+		return QLocale().toDouble(lineEdit.text());
 	}
 
 	//--------------------------------------------------------------------------
