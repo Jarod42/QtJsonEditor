@@ -18,6 +18,7 @@ namespace json_keys
 	inline constexpr auto format_color = "color";
 	inline constexpr auto format_date = "date";
 
+	inline constexpr auto type_any = "any";
 	inline constexpr auto type_array = "array";
 	inline constexpr auto type_boolean = "boolean";
 	inline constexpr auto type_integer = "integer";
