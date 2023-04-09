@@ -73,7 +73,10 @@ namespace object
 			                                    jsonReferenceResolver,
 			                                    properties[key]));
 		}
-		setLayout(&grid_layout);
+		groupBox.setTitle(json[json_keys::key_title].toString());
+		groupBox.setLayout(&grid_layout);
+		layout.addWidget(&groupBox);
+		setLayout(&layout);
 	}
 	//--------------------------------------------------------------------------
 	GridLayoutWidget::~GridLayoutWidget() /*override*/ = default;
