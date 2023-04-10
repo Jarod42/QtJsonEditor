@@ -2,7 +2,8 @@
 
 #include "widgets/IJsonWidget.h"
 
-#include <QGroupBox>
+#include <QJsonObject>
+#include <QTabWidget>
 
 namespace object
 {
@@ -19,9 +20,18 @@ namespace object
 		struct LabeledWidget;
 
 	private:
+		void addOptionalProperties(QJsonValue json,
+		                           const std::vector<QString>& requiredKeys,
+		                           QStringList propertiesKeys,
+		                           QGridLayout& grid_layout);
+
+	private:
+		const JsonReferenceResolver& jsonReferenceResolver;
+		const QJsonObject properties;
+		QTabWidget tabWidget;
 		QVBoxLayout layout;
-		QGroupBox groupBox;
 		QGridLayout grid_layout;
+		QGridLayout grid_layout_additional_prop;
 		std::vector<std::unique_ptr<LabeledWidget>> jsonWidgets;
 	};
 } // namespace object

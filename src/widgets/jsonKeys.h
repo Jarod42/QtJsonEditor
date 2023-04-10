@@ -5,14 +5,17 @@ namespace json_keys
 
 	inline constexpr auto key_description = "description";
 	inline constexpr auto key_default = "default";
+	inline constexpr auto key_dependencies = "dependencies";
 	inline constexpr auto key_enum = "enum";
 	inline constexpr auto key_format = "format";
 	inline constexpr auto key_items = "items";
 	inline constexpr auto key_minimum = "minimum";
 	inline constexpr auto key_maximum = "maximum";
 	inline constexpr auto key_placeholder = "placeholder";
+	inline constexpr auto key_properties = "properties";
 	inline constexpr auto key_propertyOrder = "propertyOrder";
 	inline constexpr auto key_ref = "$ref";
+	inline constexpr auto key_required = "required";
 	inline constexpr auto key_title = "title";
 	inline constexpr auto key_type = "type";
 
