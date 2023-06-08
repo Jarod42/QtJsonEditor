@@ -23,6 +23,8 @@ workspace "qt-json-editor"
   --architecture "x64"
   cppdialect "C++17"
   warnings "Extra"
+  externalanglebrackets "On"
+  externalwarnings "Off"
 
   objdir(path.join("obj", _ACTION)) -- premake add $(configName)/$(AppName)
   targetdir(path.join("bin", _ACTION, "%{cfg.buildcfg}"))
