@@ -167,12 +167,14 @@ namespace object
 		QGridLayout& grid_layout)
 	{
 		std::vector<QString> optionalProperties;
+		const auto byPropertyOrderThenName = getPropertyKeyComparer(properties);
 
 		std::set_difference(propertiesKeys.begin(),
 		                    propertiesKeys.end(),
 		                    requiredKeys.begin(),
 		                    requiredKeys.end(),
-		                    std::back_inserter(optionalProperties));
+		                    std::back_inserter(optionalProperties),
+		                    byPropertyOrderThenName);
 
 		for (const auto& key : optionalProperties)
 		{
