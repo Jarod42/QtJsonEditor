@@ -30,7 +30,7 @@ namespace object
 		const QJsonObject properties;
 		QTabWidget tabWidget;
 		QVBoxLayout layout;
-		QGridLayout grid_layout;
+		QGridLayout grid_layout_prop;
 		QGridLayout grid_layout_additional_prop;
 		std::vector<std::unique_ptr<LabeledWidget>> jsonWidgets;
 	};

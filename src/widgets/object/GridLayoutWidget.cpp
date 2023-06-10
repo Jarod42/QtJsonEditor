@@ -114,8 +114,8 @@ namespace object
 		jsonReferenceResolver(jsonReferenceResolver),
 		properties(json[json_keys::key_properties].toObject())
 	{
-		grid_layout.setObjectName(
-			get_unique_name("(GridLayoutWidget)gridLayout-"));
+		grid_layout_prop.setObjectName(
+			get_unique_name("(GridLayoutWidget)gridLayoutProp-"));
 
 		auto propertiesKeys = properties.keys();
 		std::vector<QString> requiredKeys =
@@ -133,14 +133,14 @@ namespace object
 			jsonWidgets.push_back(
 				std::make_unique<LabeledWidget>(key,
 			                                    *this,
-			                                    grid_layout,
+			                                    grid_layout_prop,
 			                                    jsonWidgets.size(),
 			                                    jsonReferenceResolver,
 			                                    properties[key]));
 		}
 
 		QWidget* widget = new QWidget;
-		widget->setLayout(&grid_layout);
+		widget->setLayout(&grid_layout_prop);
 		tabWidget.addTab(widget, json[json_keys::key_title].toString());
 
 		addOptionalProperties(
@@ -195,19 +195,19 @@ namespace object
 						jsonWidgets.end(),
 						key,
 						[this](const auto& widget, QString key) {
-							return getPropertyKeyComparer(this->properties)(
+							return getPropertyKeyComparer(properties)(
 								widget->name, key);
 						});
 					const int rowCount = std::distance(jsonWidgets.begin(), it);
-					insertRow(this->grid_layout, rowCount);
-					jsonWidgets.insert(it,
-					                   std::make_unique<LabeledWidget>(
-										   key,
-										   *this,
-										   this->grid_layout,
-										   rowCount,
-										   this->jsonReferenceResolver,
-										   this->properties[key]));
+					insertRow(grid_layout_prop, rowCount);
+					jsonWidgets.insert(
+						it,
+						std::make_unique<LabeledWidget>(key,
+					                                    *this,
+					                                    grid_layout_prop,
+					                                    rowCount,
+					                                    jsonReferenceResolver,
+					                                    properties[key]));
 				}
 				else
 				{
@@ -217,7 +217,7 @@ namespace object
 					{
 						const int rowCount =
 							std::distance(jsonWidgets.begin(), it);
-						deleteRow(this->grid_layout, rowCount);
+						deleteRow(grid_layout_prop, rowCount);
 						jsonWidgets.erase(it);
 					}
 				}
