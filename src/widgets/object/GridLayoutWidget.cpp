@@ -5,6 +5,8 @@
 #include <QCheckBox>
 #include <QJsonArray>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace object
 {
@@ -78,6 +80,13 @@ namespace object
 			return [=](const auto& p) { return p->name == name; };
 		}
 
+		//----------------------------------------------------------------------
+		template <typename T>
+		bool contains(const std::vector<T>& v, const T& value)
+		{
+			return std::find(v.begin(), v.end(), value) != v.end();
+		}
+
 	} // namespace
 
 	//--------------------------------------------------------------------------
@@ -143,11 +152,15 @@ namespace object
 		widget->setLayout(&grid_layout_prop);
 		tabWidget.addTab(widget, json[json_keys::key_title].toString());
 
-		addOptionalProperties(
-			json, requiredKeys, propertiesKeys, grid_layout_additional_prop);
 		if (requiredKeys.size()
-		    != static_cast<std::size_t>(propertiesKeys.size()))
+		        != static_cast<std::size_t>(propertiesKeys.size())
+		    || json[json_keys::key_additionalProperties].toBool(true)
+		    || json.toObject().contains(json_keys::key_patternProperties))
 		{
+			addOptionalProperties(json,
+			                      requiredKeys,
+			                      propertiesKeys,
+			                      grid_layout_additional_prop);
 			QWidget* widget_additional_prop = new QWidget;
 			widget_additional_prop->setLayout(&grid_layout_additional_prop);
 			tabWidget.addTab(widget_additional_prop, tr("Properties"));
@@ -176,18 +189,9 @@ namespace object
 		                    std::back_inserter(optionalProperties),
 		                    byPropertyOrderThenName);
 
-		for (const auto& key : optionalProperties)
-		{
-			auto checkBox = new QCheckBox(key, this);
-			const auto row = grid_layout.rowCount();
-			grid_layout.addWidget(checkBox, row, 0);
-			auto desc = properties[key][json_keys::key_description].toString();
-			if (!desc.isEmpty())
-			{
-				grid_layout.addWidget(new QLabel(desc, this), row, 1);
-			}
-			const auto onCheckBoxStateChanged = [key, checkBox, this](
-													int state) {
+		auto makeOnCheckBoxStateChanged = [this](auto key,
+		                                         QCheckBox* checkBox) {
+			return [key, checkBox, this](int state) {
 				if (state == Qt::Checked)
 				{
 					const auto it = std::lower_bound(
@@ -223,16 +227,67 @@ namespace object
 				}
 				emit this->hasChanged();
 			};
+		};
+
+		for (const auto& key : optionalProperties)
+		{
+			auto checkBox = new QCheckBox(key, this);
+			const auto row = grid_layout.rowCount();
+			grid_layout.addWidget(checkBox, row, 0);
+			auto desc = properties[key][json_keys::key_description].toString();
+			if (!desc.isEmpty())
+			{
+				grid_layout.addWidget(new QLabel(desc, this), row, 1);
+			}
 			QObject::connect(checkBox,
 			                 &QCheckBox::stateChanged,
 			                 this,
-			                 onCheckBoxStateChanged);
+			                 makeOnCheckBoxStateChanged(key, checkBox));
+		}
+		{
+			const auto row = grid_layout.rowCount();
+			auto* const lineEdit = new QLineEdit("", this);
+			auto* const pushButton = new QPushButton(tr("Add"), this);
+			pushButton->setEnabled(false);
+			QObject::connect(lineEdit,
+			                 &QLineEdit::textChanged,
+			                 pushButton,
+			                 [=](const QString& s) {
+								 pushButton->setEnabled(
+									 !s.isEmpty()
+									 && !contains(optionalProperties, s)
+									 && !contains(additional_prop_keys, s)
+									 // TODO: pattern prop
+								 );
+							 });
+
+			QObject::connect(
+				pushButton, &QPushButton::clicked, pushButton, [=]() {
+					auto key = lineEdit->text();
+
+					auto checkBox = new QCheckBox(key, this);
+					additional_prop_keys.push_back(key);
+					const auto row =
+						this->grid_layout_additional_prop.rowCount();
+					this->grid_layout_additional_prop.addWidget(
+						checkBox, row, 0);
+					// TODO: delete button
+					QObject::connect(checkBox,
+				                     &QCheckBox::stateChanged,
+				                     this,
+				                     makeOnCheckBoxStateChanged(key, checkBox));
+
+					lineEdit->setText("");
+				});
+
+			grid_layout.addWidget(lineEdit, row, 0);
+			grid_layout.addWidget(pushButton, row, 1);
 		}
 		const auto dependencies = json[json_keys::key_dependencies].toObject();
 		for (auto it = dependencies.constBegin(); it != dependencies.constEnd();
 		     ++it)
 		{
-			auto key_it = std::find(
+			const auto key_it = std::find(
 				optionalProperties.begin(), optionalProperties.end(), it.key());
 			if (key_it == optionalProperties.end())
 			{
@@ -247,7 +302,7 @@ namespace object
 			                        : toStrings(value.toArray());
 
 			std::vector<QCheckBox*> checkBoxes;
-			for (auto child : children)
+			for (const auto& child : children)
 			{
 				auto it2 = std::find(optionalProperties.begin(),
 				                     optionalProperties.end(),
@@ -255,7 +310,7 @@ namespace object
 				if (it2 == optionalProperties.end())
 				{
 					// dependency not found
-					return;
+					break;
 				}
 				const auto index2 =
 					std::distance(optionalProperties.begin(), it2);

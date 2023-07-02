@@ -33,5 +33,6 @@ namespace object
 		QGridLayout grid_layout_prop;
 		QGridLayout grid_layout_additional_prop;
 		std::vector<std::unique_ptr<LabeledWidget>> jsonWidgets;
+		std::vector<QString> additional_prop_keys;
 	};
 } // namespace object

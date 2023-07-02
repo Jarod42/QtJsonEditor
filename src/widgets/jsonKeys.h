@@ -3,6 +3,7 @@
 namespace json_keys
 {
 
+	inline constexpr auto key_additionalProperties = "additionalProperties";
 	inline constexpr auto key_description = "description";
 	inline constexpr auto key_default = "default";
 	inline constexpr auto key_dependencies = "dependencies";
@@ -11,6 +12,7 @@ namespace json_keys
 	inline constexpr auto key_items = "items";
 	inline constexpr auto key_minimum = "minimum";
 	inline constexpr auto key_maximum = "maximum";
+	inline constexpr auto key_patternProperties = "patternProperties";
 	inline constexpr auto key_placeholder = "placeholder";
 	inline constexpr auto key_properties = "properties";
 	inline constexpr auto key_propertyOrder = "propertyOrder";
