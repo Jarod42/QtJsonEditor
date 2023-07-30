@@ -2,6 +2,7 @@
 
 #include "widgets/IJsonWidget.h"
 
+#include <QCheckBox>
 #include <QJsonObject>
 #include <QTabWidget>
 
@@ -20,6 +21,9 @@ namespace object
 		struct LabeledWidget;
 
 	private:
+		void addItem(const QString& key);
+		void addExtraProperty(const QString& key);
+		void onCheckBoxStateChanged(const QString& key, int state);
 		void addOptionalProperties(QJsonValue json,
 		                           const std::vector<QString>& requiredKeys,
 		                           QStringList propertiesKeys,
@@ -28,6 +32,7 @@ namespace object
 	private:
 		const JsonReferenceResolver& jsonReferenceResolver;
 		const QJsonObject properties;
+		std::vector<QCheckBox*> allCheckBoxes;
 		QTabWidget tabWidget;
 		QVBoxLayout layout;
 		QGridLayout grid_layout_prop;

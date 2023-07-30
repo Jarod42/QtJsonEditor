@@ -81,10 +81,10 @@ namespace object
 		}
 
 		//----------------------------------------------------------------------
-		template <typename T>
-		bool contains(const std::vector<T>& v, const T& value)
+		template <typename Range, typename T>
+		bool contains(const Range& r, const T& value)
 		{
-			return std::find(v.begin(), v.end(), value) != v.end();
+			return std::find(r.begin(), r.end(), value) != r.end();
 		}
 
 	} // namespace
@@ -173,6 +173,61 @@ namespace object
 	GridLayoutWidget::~GridLayoutWidget() /*override*/ = default;
 
 	//--------------------------------------------------------------------------
+	void GridLayoutWidget::addItem(const QString& key)
+	{
+		const auto it = std::lower_bound(
+			jsonWidgets.begin(),
+			jsonWidgets.end(),
+			key,
+			[this](const auto& widget, QString key) {
+				return getPropertyKeyComparer(properties)(widget->name, key);
+			});
+		const int rowCount = std::distance(jsonWidgets.begin(), it);
+		insertRow(grid_layout_prop, rowCount);
+		jsonWidgets.insert(
+			it,
+			std::make_unique<LabeledWidget>(key,
+		                                    *this,
+		                                    grid_layout_prop,
+		                                    rowCount,
+		                                    jsonReferenceResolver,
+		                                    properties[key]));
+	}
+
+	//--------------------------------------------------------------------------
+	void GridLayoutWidget::onCheckBoxStateChanged(const QString& key, int state)
+	{
+		if (state == Qt::Checked) { addItem(key); }
+		else
+		{
+			auto it = std::find_if(
+				jsonWidgets.begin(), jsonWidgets.end(), byName(key));
+			if (it != jsonWidgets.end())
+			{
+				const int rowCount = std::distance(jsonWidgets.begin(), it);
+				deleteRow(grid_layout_prop, rowCount);
+				jsonWidgets.erase(it);
+			}
+		}
+		emit this->hasChanged();
+	}
+
+	//--------------------------------------------------------------------------
+	void GridLayoutWidget::addExtraProperty(const QString& key)
+	{
+		auto checkBox = new QCheckBox(key, this);
+		allCheckBoxes.push_back(checkBox);
+		additional_prop_keys.push_back(key);
+		const auto row = this->grid_layout_additional_prop.rowCount();
+		this->grid_layout_additional_prop.addWidget(checkBox, row, 0);
+		// TODO: delete button
+		QObject::connect(
+			checkBox, &QCheckBox::stateChanged, this, [this, key](int state) {
+				return onCheckBoxStateChanged(key, state);
+			});
+	}
+
+	//--------------------------------------------------------------------------
 	void GridLayoutWidget::addOptionalProperties(
 		QJsonValue json,
 		const std::vector<QString>& requiredKeys,
@@ -189,49 +244,10 @@ namespace object
 		                    std::back_inserter(optionalProperties),
 		                    byPropertyOrderThenName);
 
-		auto makeOnCheckBoxStateChanged = [this](auto key,
-		                                         QCheckBox* checkBox) {
-			return [key, checkBox, this](int state) {
-				if (state == Qt::Checked)
-				{
-					const auto it = std::lower_bound(
-						jsonWidgets.begin(),
-						jsonWidgets.end(),
-						key,
-						[this](const auto& widget, QString key) {
-							return getPropertyKeyComparer(properties)(
-								widget->name, key);
-						});
-					const int rowCount = std::distance(jsonWidgets.begin(), it);
-					insertRow(grid_layout_prop, rowCount);
-					jsonWidgets.insert(
-						it,
-						std::make_unique<LabeledWidget>(key,
-					                                    *this,
-					                                    grid_layout_prop,
-					                                    rowCount,
-					                                    jsonReferenceResolver,
-					                                    properties[key]));
-				}
-				else
-				{
-					auto it = std::find_if(
-						jsonWidgets.begin(), jsonWidgets.end(), byName(key));
-					if (it != jsonWidgets.end())
-					{
-						const int rowCount =
-							std::distance(jsonWidgets.begin(), it);
-						deleteRow(grid_layout_prop, rowCount);
-						jsonWidgets.erase(it);
-					}
-				}
-				emit this->hasChanged();
-			};
-		};
-
 		for (const auto& key : optionalProperties)
 		{
 			auto checkBox = new QCheckBox(key, this);
+			allCheckBoxes.push_back(checkBox);
 			const auto row = grid_layout.rowCount();
 			grid_layout.addWidget(checkBox, row, 0);
 			auto desc = properties[key][json_keys::key_description].toString();
@@ -239,10 +255,11 @@ namespace object
 			{
 				grid_layout.addWidget(new QLabel(desc, this), row, 1);
 			}
-			QObject::connect(checkBox,
-			                 &QCheckBox::stateChanged,
-			                 this,
-			                 makeOnCheckBoxStateChanged(key, checkBox));
+			QObject::connect(
+				checkBox,
+				&QCheckBox::stateChanged,
+				this,
+				[this, key](int state) { onCheckBoxStateChanged(key, state); });
 		}
 		{
 			const auto row = grid_layout.rowCount();
@@ -265,18 +282,7 @@ namespace object
 				pushButton, &QPushButton::clicked, pushButton, [=]() {
 					auto key = lineEdit->text();
 
-					auto checkBox = new QCheckBox(key, this);
-					additional_prop_keys.push_back(key);
-					const auto row =
-						this->grid_layout_additional_prop.rowCount();
-					this->grid_layout_additional_prop.addWidget(
-						checkBox, row, 0);
-					// TODO: delete button
-					QObject::connect(checkBox,
-				                     &QCheckBox::stateChanged,
-				                     this,
-				                     makeOnCheckBoxStateChanged(key, checkBox));
-
+					addExtraProperty(key);
 					lineEdit->setText("");
 				});
 
@@ -301,7 +307,7 @@ namespace object
 			                        ? std::vector{value.toString()}
 			                        : toStrings(value.toArray());
 
-			std::vector<QCheckBox*> checkBoxes;
+			std::vector<QCheckBox*> dependentCheckBoxes;
 			for (const auto& child : children)
 			{
 				auto it2 = std::find(optionalProperties.begin(),
@@ -316,22 +322,22 @@ namespace object
 					std::distance(optionalProperties.begin(), it2);
 				QCheckBox* w2 = dynamic_cast<QCheckBox*>(
 					grid_layout.itemAtPosition(1 + index2, 0)->widget());
-				if (w2) { checkBoxes.push_back(w2); }
+				if (w2) { dependentCheckBoxes.push_back(w2); }
 			}
 
 			QCheckBox* w1 = dynamic_cast<QCheckBox*>(
 				grid_layout.itemAtPosition(1 + index, 0)->widget());
 
 			w1->setEnabled(false);
-			auto onStateChanged = [w1, checkBoxes]() {
-				w1->setEnabled(std::all_of(checkBoxes.begin(),
-				                           checkBoxes.end(),
+			auto onStateChanged = [w1, dependentCheckBoxes]() {
+				w1->setEnabled(std::all_of(dependentCheckBoxes.begin(),
+				                           dependentCheckBoxes.end(),
 				                           [](const QCheckBox* checkBox) {
 											   return checkBox->isChecked();
 										   }));
 				if (!w1->isEnabled()) { w1->setChecked(false); }
 			};
-			for (auto* w : checkBoxes)
+			for (auto* w : dependentCheckBoxes)
 			{
 				QObject::connect(
 					w, &QCheckBox::stateChanged, w1, onStateChanged);
@@ -352,9 +358,39 @@ namespace object
 	//--------------------------------------------------------------------------
 	void GridLayoutWidget::fromQJson(QJsonValue json) /*override*/
 	{
-		for (auto& labeledWidget : jsonWidgets)
+		const auto byPropertyOrderThenName = getPropertyKeyComparer(properties);
+		auto keys = json.toObject().keys();
+
+		std::sort(keys.begin(), keys.end(), byPropertyOrderThenName);
+
+		for (const auto& key : keys)
 		{
-			labeledWidget->jsonWidget->fromQJson(json[labeledWidget->name]);
+			auto it = std::find_if(
+				jsonWidgets.begin(), jsonWidgets.end(), byName(key));
+			if (it == jsonWidgets.end())
+			{
+				auto it2 = std::find_if(
+					allCheckBoxes.begin(),
+					allCheckBoxes.end(),
+					[&](const auto* c) { return c->text() == key; });
+				if (it2 == allCheckBoxes.end())
+				{
+					addExtraProperty(key);
+					it2 = std::find_if(
+						allCheckBoxes.begin(),
+						allCheckBoxes.end(),
+						[&](const auto* c) { return c->text() == key; });
+				}
+				(*it2)->setChecked(true);
+
+				it = std::find_if(
+					jsonWidgets.begin(), jsonWidgets.end(), byName(key));
+			}
+			(*it)->jsonWidget->fromQJson(json[key]);
+		}
+		for (auto* c : allCheckBoxes)
+		{
+			if (!contains(keys, c->text())) { c->setChecked(false); }
 		}
 	}
 
