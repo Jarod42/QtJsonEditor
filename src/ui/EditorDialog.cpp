@@ -13,7 +13,162 @@ namespace
 {
 
 #if 1
-	const char* schema = R"({
+
+	const char* schema7 = R"(
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://json-schema.org/draft-07/schema#",
+  "title": "Core schema meta-schema",
+  "definitions": {
+    "schemaArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#"}
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "nonNegativeIntegerDefault0": {
+      "allOf": [{"$ref": "#/definitions/nonNegativeInteger"}, {"default": 0}]
+    },
+    "simpleTypes": {
+      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "default": []
+    }
+  },
+  "type": ["object", "boolean"],
+  "properties": {
+    "$id": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "$ref": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "default": true,
+    "readOnly": {
+      "type": "boolean",
+      "default": false
+    },
+    "examples": {
+      "type": "array",
+      "items": true
+    },
+    "multipleOf": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "maximum": {
+      "type": "number"
+    },
+    "exclusiveMaximum": {
+      "type": "number"
+    },
+    "minimum": {
+      "type": "number"
+    },
+    "exclusiveMinimum": {
+      "type": "number"
+    },
+    "maxLength": {"$ref": "#/definitions/nonNegativeInteger"},
+    "minLength": {"$ref": "#/definitions/nonNegativeIntegerDefault0"},
+    "pattern": {
+      "type": "string",
+      "format": "regex"
+    },
+    "additionalItems": {"$ref": "#"},
+    "items": {
+      "anyOf": [{"$ref": "#"}, {"$ref": "#/definitions/schemaArray"}],
+      "default": true
+    },
+    "maxItems": {"$ref": "#/definitions/nonNegativeInteger"},
+    "minItems": {"$ref": "#/definitions/nonNegativeIntegerDefault0"},
+    "uniqueItems": {
+      "type": "boolean",
+      "default": false
+    },
+    "contains": {"$ref": "#"},
+    "maxProperties": {"$ref": "#/definitions/nonNegativeInteger"},
+    "minProperties": {"$ref": "#/definitions/nonNegativeIntegerDefault0"},
+    "required": {"$ref": "#/definitions/stringArray"},
+    "additionalProperties": {"$ref": "#"},
+    "definitions": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#"},
+      "default": {}
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#"},
+      "default": {}
+    },
+    "patternProperties": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#"},
+      "propertyNames": {"format": "regex"},
+      "default": {}
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [{"$ref": "#"}, {"$ref": "#/definitions/stringArray"}]
+      }
+    },
+    "propertyNames": {"$ref": "#"},
+    "const": true,
+    "enum": {
+      "type": "array",
+      "items": true,
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "type": {
+      "anyOf": [
+        {"$ref": "#/definitions/simpleTypes"},
+        {
+          "type": "array",
+          "items": {"$ref": "#/definitions/simpleTypes"},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      ]
+    },
+    "format": {"type": "string"},
+    "contentMediaType": {"type": "string"},
+    "contentEncoding": {"type": "string"},
+    "if": {"$ref": "#"},
+    "then": {"$ref": "#"},
+    "else": {"$ref": "#"},
+    "allOf": {"$ref": "#/definitions/schemaArray"},
+    "anyOf": {"$ref": "#/definitions/schemaArray"},
+    "oneOf": {"$ref": "#/definitions/schemaArray"},
+    "not": {"$ref": "#"}
+  },
+  "default": true
+}
+)";
+
+	const char* initialSchema = R"({
   "title": "Person",
   "type": "object",
   "required": [
@@ -130,6 +285,31 @@ namespace
 })";
 #endif
 
+	//--------------------------------------------------------------------------
+	bool isValid(const QString& schema, const QString& json)
+	{
+		QJsonParseError parseError;
+		auto schemaDoc = QJsonDocument::fromJson(schema.toUtf8(), &parseError);
+		if (parseError.error != QJsonParseError::NoError) { return false; }
+
+		QJsonParseError parseErrorSchema;
+		auto jsonDoc =
+			QJsonDocument::fromJson(json.toUtf8(), &parseErrorSchema);
+		if (parseErrorSchema.error != QJsonParseError::NoError)
+		{
+			return false;
+		}
+
+		valijson::Schema mySchema;
+		valijson::SchemaParser parser;
+		valijson::adapters::QtJsonAdapter qtSchemaAdapter(schemaDoc.object());
+		parser.populateSchema(qtSchemaAdapter, mySchema);
+
+		valijson::Validator validator;
+		valijson::adapters::QtJsonAdapter myTargetAdapter(jsonDoc.object());
+		return validator.validate(mySchema, myTargetAdapter, nullptr);
+	}
+
 } // namespace
 
 enum class EditorDialog::EState : char
@@ -142,16 +322,25 @@ enum class EditorDialog::EState : char
 
 //------------------------------------------------------------------------------
 EditorDialog::EditorDialog(QWidget* parent) :
-	QDialog(parent), ui(new Ui::EditorDialog), state(EState::Ready)
+	QDialog(parent), ui(std::make_unique<Ui::EditorDialog>()),
+	state(EState::Ready)
 {
 	ui->setupUi(this);
 
 	QObject::connect(ui->textEdit_json,
 	                 &QTextEdit::textChanged,
 	                 this,
+	                 &EditorDialog::onJsonTextChanged);
+	QObject::connect(ui->pushButton_updateJsonValue,
+	                 &QPushButton::clicked,
+	                 this,
 	                 &EditorDialog::updateJsonWidgetValues);
 	QObject::connect(ui->textEdit_schema,
 	                 &QTextEdit::textChanged,
+	                 this,
+	                 &EditorDialog::onSchemaChanged);
+	QObject::connect(ui->pushButton_updateSchema,
+	                 &QPushButton::clicked,
 	                 this,
 	                 &EditorDialog::updateJsonWidgets);
 	QObject::connect(ui->widget,
@@ -159,12 +348,27 @@ EditorDialog::EditorDialog(QWidget* parent) :
 	                 this,
 	                 &EditorDialog::updateJsonTextValues);
 
-	ui->textEdit_schema->setText(schema); // trigger above message
+	ui->textEdit_schema->setText(initialSchema); // trigger above message
+	if (ui->pushButton_updateSchema->isEnabled()) { updateJsonWidgets(); }
 	updateJsonTextValues();
 }
 
 //------------------------------------------------------------------------------
 EditorDialog::~EditorDialog() = default;
+
+//------------------------------------------------------------------------------
+void EditorDialog::onSchemaChanged()
+{
+	ui->pushButton_updateSchema->setEnabled(
+		isValid(schema7, ui->textEdit_schema->toPlainText()));
+}
+
+//------------------------------------------------------------------------------
+void EditorDialog::onJsonTextChanged()
+{
+	ui->pushButton_updateJsonValue->setEnabled(isValid(
+		ui->textEdit_schema->toPlainText(), ui->textEdit_json->toPlainText()));
+}
 
 //------------------------------------------------------------------------------
 void EditorDialog::updateJsonWidgets()

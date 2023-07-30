@@ -21,6 +21,10 @@ public slots:
 	void updateJsonWidgetValues();
 	void updateJsonTextValues();
 
+private slots:
+	void onSchemaChanged();
+	void onJsonTextChanged();
+
 private:
 	enum class EState : char;
 
