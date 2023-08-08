@@ -15,6 +15,7 @@
 #include "widgets/string/date/DateEditWidget.h"
 #include "widgets/string/enum/ComboBoxWidget.h"
 
+#include <QEvent>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
@@ -81,7 +82,6 @@ public:
 		typeLayout.setObjectName(
 			get_unique_name("(TypeSelectorWidget)typeLayout-"));
 
-		label.setText(tr("type:"));
 		typeLayout.addWidget(&label);
 		fillComboBox(json[json_keys::key_type]);
 		typeLayout.addWidget(&comboBox);
@@ -101,6 +101,7 @@ public:
 		                 &TypeSelectorWidget::currentIndexChanged);
 
 		setLayout(&layout);
+		retranslateUi();
 	}
 
 	QJsonValue toQJson() const override { return widget->toQJson(); }
@@ -112,6 +113,45 @@ public:
 			comboBox.setCurrentIndex(comboBox.findData(static_cast<int>(type)));
 		}
 		widget->fromQJson(json);
+	}
+
+	void changeEvent(QEvent* event) override
+	{
+		if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
+		QWidget::changeEvent(event);
+	}
+
+	void retranslateUi()
+	{
+		label.setText(IJsonWidget::tr("type:"));
+
+		for (int i = 0; i != comboBox.count(); ++i)
+		{
+			switch (EType(comboBox.itemData(i).toInt()))
+			{
+				case EType::Null:
+					comboBox.setItemText(i, IJsonWidget::tr("null"));
+					break;
+				case EType::Boolean:
+					comboBox.setItemText(i, IJsonWidget::tr("boolean"));
+					break;
+				case EType::Integer:
+					comboBox.setItemText(i, IJsonWidget::tr("integer"));
+					break;
+				case EType::Double:
+					comboBox.setItemText(i, IJsonWidget::tr("number"));
+					break;
+				case EType::String:
+					comboBox.setItemText(i, IJsonWidget::tr("string"));
+					break;
+				case EType::Array:
+					comboBox.setItemText(i, IJsonWidget::tr("array"));
+					break;
+				case EType::Object:
+					comboBox.setItemText(i, IJsonWidget::tr("object"));
+					break;
+			}
+		}
 	}
 
 private:
@@ -139,31 +179,31 @@ private:
 		                 || type.isUndefined();
 		if (hasAny || types.contains(json_keys::type_null))
 		{
-			comboBox.addItem(tr("null"), int(EType::Null));
+			comboBox.addItem("", int(EType::Null));
 		}
 		if (hasAny || types.contains(json_keys::type_boolean))
 		{
-			comboBox.addItem(tr("boolean"), int(EType::Boolean));
+			comboBox.addItem("", int(EType::Boolean));
 		}
 		if (hasAny || types.contains(json_keys::type_integer))
 		{
-			comboBox.addItem(tr("integer"), int(EType::Integer));
+			comboBox.addItem("", int(EType::Integer));
 		}
 		if (hasAny || types.contains(json_keys::type_number))
 		{
-			comboBox.addItem(tr("number"), int(EType::Double));
+			comboBox.addItem("", int(EType::Double));
 		}
 		if (hasAny || types.contains(json_keys::type_string))
 		{
-			comboBox.addItem(tr("string"), int(EType::String));
+			comboBox.addItem("", int(EType::String));
 		}
 		if (hasAny || types.contains(json_keys::type_array))
 		{
-			comboBox.addItem(tr("array"), int(EType::Array));
+			comboBox.addItem("", int(EType::Array));
 		}
 		if (hasAny || types.contains(json_keys::type_object))
 		{
-			comboBox.addItem(tr("object"), int(EType::Object));
+			comboBox.addItem("", int(EType::Object));
 		}
 		// types.contains({"$ref": "#"})
 	}

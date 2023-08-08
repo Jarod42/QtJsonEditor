@@ -2,6 +2,7 @@
 
 #include "widgets/jsonKeys.h"
 
+#include <QEvent>
 #include <QJsonArray>
 
 namespace array
@@ -22,7 +23,6 @@ namespace array
 
 			const auto row = grid_layout.rowCount();
 			grid_layout.addLayout(&hLayout, row, 0);
-			buttonDelete.setText(tr("Delete"));
 			grid_layout.addWidget(&buttonDelete, row, 1);
 			QObject::connect(&buttonDelete,
 			                 &QPushButton::clicked,
@@ -45,6 +45,12 @@ namespace array
 			                 &IJsonWidget::hasChanged,
 			                 &parent,
 			                 &IJsonWidget::hasChanged);
+			retranslateUi();
+		}
+
+		void retranslateUi()
+		{
+			buttonDelete.setText(IJsonWidget::tr("Delete"));
 		}
 
 		QHBoxLayout hLayout;
@@ -64,7 +70,6 @@ namespace array
 			get_unique_name("(GridLayoutWidget)buttonNew-"));
 
 		grid_layout.addWidget(&buttonNew, 0, 0, 1, 2);
-		buttonNew.setText(tr("Add"));
 		createItem = [&, this]() {
 			jsonWidgets.push_back(std::make_unique<OrderedWidget>(
 				*this,
@@ -80,10 +85,28 @@ namespace array
 		setLayout(&grid_layout);
 		auto initial = jsonSchema[json_keys::key_default];
 		fromQJson(initial);
+		retranslateUi();
 	}
 
 	//--------------------------------------------------------------------------
 	GridLayoutWidget::~GridLayoutWidget() /*override*/ = default;
+
+	//--------------------------------------------------------------------------
+	void GridLayoutWidget::changeEvent(QEvent* event) /*override*/
+	{
+		if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
+		QWidget::changeEvent(event);
+	}
+
+	//--------------------------------------------------------------------------
+	void GridLayoutWidget::retranslateUi()
+	{
+		buttonNew.setText(IJsonWidget::tr("Add"));
+		for (auto& w : jsonWidgets)
+		{
+			w->retranslateUi();
+		}
+	}
 
 	//--------------------------------------------------------------------------
 	QJsonValue GridLayoutWidget::toQJson() const /*override*/

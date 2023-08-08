@@ -65,6 +65,10 @@ workspace "qt-json-editor"
   project "qt-json-editor"
     kind "ConsoleApp"
     files { "src/main.cpp", "src/ui/**.*" }
+    files { "ts/*.ts" }
+
+    qtlreleaseargs { "-nounfinished" }
+    qtqmgenerateddir "%{cfg.targetdir}"
 
     includedirs "src"
     includedirs "submodules/valijson/include"
@@ -72,6 +76,10 @@ workspace "qt-json-editor"
     qtmodules { "core", "gui", "widgets" }
 
     links "qt-json-widget"
+
+    filter {"files:ts/*_en.ts"}
+      qtlreleaseargs { "-removeidentical" }
+    filter {}
 
   project "qt-json-widget"
     kind "StaticLib"

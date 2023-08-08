@@ -20,6 +20,10 @@ namespace array
 		QJsonValue toQJson() const override;
 		void fromQJson(QJsonValue) override;
 
+		void changeEvent(QEvent*) override;
+
+		void retranslateUi();
+
 	private:
 		struct OrderedWidget;
 

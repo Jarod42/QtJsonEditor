@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QTabBar>
 
 namespace object
 {
@@ -103,13 +104,18 @@ namespace object
 			label.setObjectName(get_unique_name("(LabeledWidget)label-"));
 
 			grid_layout.addWidget(&label, row, 0);
-			label.setText(tr("%1:").arg(name));
 			jsonWidget = makeWidget(jsonReferenceResolver, json);
 			grid_layout.addWidget(jsonWidget.get(), row, 1);
 			QObject::connect(jsonWidget.get(),
 			                 &IJsonWidget::hasChanged,
 			                 &parent,
 			                 &IJsonWidget::hasChanged);
+			retranslateUi();
+		}
+
+		void retranslateUi()
+		{
+			label.setText(IJsonWidget::tr("%1:").arg(name));
 		}
 
 		QString name;
@@ -163,14 +169,39 @@ namespace object
 			                      grid_layout_additional_prop);
 			QWidget* widget_additional_prop = new QWidget;
 			widget_additional_prop->setLayout(&grid_layout_additional_prop);
-			tabWidget.addTab(widget_additional_prop, tr("Properties"));
+			tabWidget.addTab(widget_additional_prop, "");
 			if (requiredKeys.empty()) { tabWidget.setCurrentIndex(1); }
 		}
 		layout.addWidget(&tabWidget);
 		setLayout(&layout);
+		retranslateUi();
 	}
 	//--------------------------------------------------------------------------
 	GridLayoutWidget::~GridLayoutWidget() /*override*/ = default;
+
+	//--------------------------------------------------------------------------
+	void GridLayoutWidget::changeEvent(QEvent* event) /*override*/
+	{
+		if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
+		QWidget::changeEvent(event);
+	}
+
+	//--------------------------------------------------------------------------
+	void GridLayoutWidget::retranslateUi()
+	{
+		if (tabWidget.tabBar()->count() == 2)
+		{
+			tabWidget.setTabText(1, IJsonWidget::tr("Properties"));
+		}
+		if (newPropertyPushButton)
+		{
+			newPropertyPushButton->setText(IJsonWidget::tr("Add"));
+		}
+		for (auto& w : jsonWidgets)
+		{
+			w->retranslateUi();
+		}
+	}
 
 	//--------------------------------------------------------------------------
 	void GridLayoutWidget::addItem(const QString& key)
@@ -264,13 +295,13 @@ namespace object
 		{
 			const auto row = grid_layout.rowCount();
 			auto* const lineEdit = new QLineEdit("", this);
-			auto* const pushButton = new QPushButton(tr("Add"), this);
-			pushButton->setEnabled(false);
+			newPropertyPushButton = new QPushButton("", this);
+			newPropertyPushButton->setEnabled(false);
 			QObject::connect(lineEdit,
 			                 &QLineEdit::textChanged,
-			                 pushButton,
+			                 newPropertyPushButton,
 			                 [=](const QString& s) {
-								 pushButton->setEnabled(
+								 newPropertyPushButton->setEnabled(
 									 !s.isEmpty()
 									 && !contains(optionalProperties, s)
 									 && !contains(additional_prop_keys, s)
@@ -278,16 +309,18 @@ namespace object
 								 );
 							 });
 
-			QObject::connect(
-				pushButton, &QPushButton::clicked, pushButton, [=]() {
-					auto key = lineEdit->text();
+			QObject::connect(newPropertyPushButton,
+			                 &QPushButton::clicked,
+			                 this,
+			                 [=]() {
+								 auto key = lineEdit->text();
 
-					addExtraProperty(key);
-					lineEdit->setText("");
-				});
+								 addExtraProperty(key);
+								 lineEdit->setText("");
+							 });
 
 			grid_layout.addWidget(lineEdit, row, 0);
-			grid_layout.addWidget(pushButton, row, 1);
+			grid_layout.addWidget(newPropertyPushButton, row, 1);
 		}
 		const auto dependencies = json[json_keys::key_dependencies].toObject();
 		for (auto it = dependencies.constBegin(); it != dependencies.constEnd();

@@ -3,7 +3,10 @@
 #include "ui_EditorDialog.h"
 #include "widgets/IJsonWidget.h"
 
+#include <QApplication>
 #include <QJsonDocument>
+#include <QTranslator>
+#include <array>
 #include <valijson/adapters/qtjson_adapter.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
@@ -321,12 +324,24 @@ enum class EditorDialog::EState : char
 };
 
 //------------------------------------------------------------------------------
-EditorDialog::EditorDialog(QWidget* parent) :
-	QDialog(parent), ui(std::make_unique<Ui::EditorDialog>()),
-	state(EState::Ready)
+EditorDialog::EditorDialog(QTranslator& translator, QWidget* parent) :
+	QMainWindow(parent), ui(std::make_unique<Ui::EditorDialog>()),
+	translator(translator), state(EState::Ready)
 {
 	ui->setupUi(this);
 
+	QObject::connect(ui->actionEnglish, &QAction::triggered, this, [this]() {
+		ui->actionFrench->setChecked(false);
+		ui->actionEnglish->setChecked(true);
+		this->translator.load("qtjsoneditor_en.qm",
+		                      QApplication::applicationDirPath());
+	});
+	QObject::connect(ui->actionFrench, &QAction::triggered, this, [this]() {
+		ui->actionFrench->setChecked(true);
+		ui->actionEnglish->setChecked(false);
+		this->translator.load("qtjsoneditor_fr.qm",
+		                      QApplication::applicationDirPath());
+	});
 	QObject::connect(ui->textEdit_json,
 	                 &QTextEdit::textChanged,
 	                 this,
@@ -355,6 +370,13 @@ EditorDialog::EditorDialog(QWidget* parent) :
 
 //------------------------------------------------------------------------------
 EditorDialog::~EditorDialog() = default;
+
+//------------------------------------------------------------------------------
+void EditorDialog::changeEvent(QEvent* event) /* override */
+{
+	if (event->type() == QEvent::LanguageChange) { ui->retranslateUi(this); }
+	QWidget::changeEvent(event);
+}
 
 //------------------------------------------------------------------------------
 void EditorDialog::onSchemaChanged()

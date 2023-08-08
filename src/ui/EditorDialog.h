@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QDialog>
+#include <QMainWindow>
+#include <QTranslator>
 #include <memory>
 
 namespace Ui
@@ -8,12 +9,14 @@ namespace Ui
 	class EditorDialog;
 } // namespace Ui
 
-class EditorDialog : public QDialog
+class EditorDialog : public QMainWindow
 {
 	Q_OBJECT
 public:
-	explicit EditorDialog(QWidget* parent = nullptr);
+	EditorDialog(QTranslator&, QWidget* parent = nullptr);
 	~EditorDialog();
+
+	void changeEvent(QEvent*) override;
 
 public slots:
 
@@ -29,5 +32,6 @@ private:
 	enum class EState : char;
 
 	std::unique_ptr<Ui::EditorDialog> ui;
+	QTranslator& translator;
 	EState state;
 };

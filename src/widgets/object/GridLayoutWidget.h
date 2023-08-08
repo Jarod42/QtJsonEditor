@@ -2,7 +2,9 @@
 
 #include "widgets/IJsonWidget.h"
 
+#include <QPushButton>
 #include <QCheckBox>
+#include <QEvent>
 #include <QJsonObject>
 #include <QTabWidget>
 
@@ -16,6 +18,10 @@ namespace object
 		~GridLayoutWidget() override;
 		QJsonValue toQJson() const override;
 		void fromQJson(QJsonValue) override;
+
+		void changeEvent(QEvent*) override;
+
+		void retranslateUi();
 
 	private:
 		struct LabeledWidget;
@@ -37,6 +43,7 @@ namespace object
 		QVBoxLayout layout;
 		QGridLayout grid_layout_prop;
 		QGridLayout grid_layout_additional_prop;
+		QPushButton* newPropertyPushButton = nullptr;
 		std::vector<std::unique_ptr<LabeledWidget>> jsonWidgets;
 		std::vector<QString> additional_prop_keys;
 	};
