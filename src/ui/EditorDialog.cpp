@@ -4,6 +4,7 @@
 #include "widgets/IJsonWidget.h"
 
 #include <QApplication>
+#include <QFileDialog>
 #include <QJsonDocument>
 #include <QTranslator>
 #include <array>
@@ -329,6 +330,55 @@ EditorDialog::EditorDialog(QTranslator& translator, QWidget* parent) :
 	translator(translator), state(EState::Ready)
 {
 	ui->setupUi(this);
+
+	QObject::connect(ui->actionOpenSchema, &QAction::triggered, this, [this]() {
+		auto filename = QFileDialog::getOpenFileName(
+			this,
+			IJsonWidget::tr("Select Schema"),
+			"",
+			IJsonWidget::tr("Json Files (*.json);;All files (*.*)"));
+
+		if (filename.isEmpty()) { return; }
+		QFile file(filename);
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { return; }
+		ui->textEdit_schema->setText(QString::fromUtf8(file.readAll()));
+	});
+	QObject::connect(ui->actionOpenJson, &QAction::triggered, this, [this]() {
+		auto filename = QFileDialog::getOpenFileName(
+			this,
+			IJsonWidget::tr("Select Json"),
+			"",
+			IJsonWidget::tr("Json Files (*.json);;All files (*.*)"));
+
+		if (filename.isEmpty()) { return; }
+		QFile file(filename);
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { return; }
+		ui->textEdit_json->setText(QString::fromUtf8(file.readAll()));
+	});
+	QObject::connect(ui->actionSaveSchema, &QAction::triggered, this, [this]() {
+		auto filename = QFileDialog::getSaveFileName(
+			this,
+			IJsonWidget::tr("Select Schema"),
+			"",
+			IJsonWidget::tr("Json Files (*.json);;All files (*.*)"));
+
+		if (filename.isEmpty()) { return; }
+		QFile file(filename);
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { return; }
+		file.write(ui->textEdit_schema->toPlainText().toUtf8());
+	});
+	QObject::connect(ui->actionSaveJson, &QAction::triggered, this, [this]() {
+		auto filename = QFileDialog::getSaveFileName(
+			this,
+			IJsonWidget::tr("Select Json"),
+			"",
+			IJsonWidget::tr("Json Files (*.json);;All files (*.*)"));
+
+		if (filename.isEmpty()) { return; }
+		QFile file(filename);
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { return; }
+		file.write(ui->textEdit_json->toPlainText().toUtf8());
+	});
 
 	QObject::connect(ui->actionEnglish, &QAction::triggered, this, [this]() {
 		ui->actionFrench->setChecked(false);

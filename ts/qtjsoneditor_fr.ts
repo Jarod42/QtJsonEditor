@@ -16,16 +16,36 @@
         <translation>json</translation>
     </message>
     <message>
-        <source>Language</source>
-        <translation>Langue</translation>
-    </message>
-    <message>
         <source>English</source>
         <translation>Anglais</translation>
     </message>
     <message>
         <source>French</source>
         <translation>Français</translation>
+    </message>
+    <message>
+        <source>&amp;Language</source>
+        <translation>&amp; Langue</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Fichier</translation>
+    </message>
+    <message>
+        <source>Open Schema file</source>
+        <translation>Ouvrir le fichier Schéma</translation>
+    </message>
+    <message>
+        <source>&amp;Open Json file</source>
+        <translation>&amp;Ouvrir le fichier Json</translation>
+    </message>
+    <message>
+        <source>&amp;Save Json file</source>
+        <translation>Sauvegarder le fichier Json</translation>
+    </message>
+    <message>
+        <source>Save Schema file</source>
+        <translation>Sauvegarder le fichier schéma</translation>
     </message>
 </context>
 <context>
@@ -77,6 +97,18 @@
     <message>
         <source>Properties</source>
         <translation>Propriétés</translation>
+    </message>
+    <message>
+        <source>Select Schema</source>
+        <translation>Schéma sélection</translation>
+    </message>
+    <message>
+        <source>Json Files (*.json);;All files (*.*)</source>
+        <translation>Fichiers Json (*.json);;Tous (*.*)</translation>
+    </message>
+    <message>
+        <source>Select Json</source>
+        <translation>Json sélection</translation>
     </message>
 </context>
 </TS>

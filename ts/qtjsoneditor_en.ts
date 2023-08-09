@@ -16,15 +16,35 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>French</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Schema file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Json file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save Json file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Schema file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -76,6 +96,18 @@
     </message>
     <message>
         <source>Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Schema</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Json</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Json Files (*.json);;All files (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
