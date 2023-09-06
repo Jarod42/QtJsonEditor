@@ -29,6 +29,13 @@ jobs:
          echo QT_DIR=$Qt5_Dir
          echo QT_DIR=$Qt5_Dir >> $GITHUB_ENV
 
+    # CMake
+    - name: build with cmake
+      run: |
+        mkdir cmake-build
+        cd cmake-build
+        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+
     # Premake
     - name: checkout premake5
       uses: actions/checkout@v3
@@ -57,13 +64,6 @@ jobs:
     - name: build with premake
       run: |
         ./premake5 gmake && cd solution/gmake && make config=release
-
-#    # CMake
-#    - name: build with cmake
-#      run: |
-#        mkdir cmake-build
-#        cd cmake-build
-#        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 
 #
 #    - name: install libxkbcommon-x11-0 # display dependency

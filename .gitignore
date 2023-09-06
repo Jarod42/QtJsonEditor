@@ -2,3 +2,5 @@
 /obj
 /solution
 /premake-system.lua
+/cmake-build
+/build
