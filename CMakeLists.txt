@@ -26,15 +26,35 @@ GroupSources(src)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets Core Gui REQUIRED)
-#find_package(Qt5 COMPONENTS Widgets Core Gui LinguistTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets LinguistTools REQUIRED)
 
 add_library(qt_json_widget ${QtJsonEditor_Widget_SRCS})
-target_link_libraries(qt_json_widget PUBLIC Qt5::Widgets Qt5::Core Qt5::Gui)
+target_link_libraries(qt_json_widget
+	PUBLIC
+		Qt${QT_VERSION_MAJOR}::Widgets
+		Qt${QT_VERSION_MAJOR}::Core
+		Qt${QT_VERSION_MAJOR}::Gui
+)
 target_include_directories(qt_json_widget PUBLIC "src" "submodules/valijson/include")
 
 add_executable(qt_json_editor ${QtJsonEditor_Ui_SRCS} src/main.cpp)
 target_link_libraries(qt_json_editor PUBLIC qt_json_widget)
 
-#qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${QtJsonEditor_Ts})
-#qt5_add_translation(qm_files ${QtJsonEditor_Ts})
+#if (QT_VERSION VERSION_LESS 5.15.0)
+#    qt5_add_translation(QM_FILES ${QtJsonEditor_Ts})
+#else()
+#    qt_add_translation(QM_FILES ${QtJsonEditor_Ts})
+#endif()
+
+#set(Qt_LCONVERT_EXECUTABLE Qt${QT_VERSION_MAJOR}::lconvert)
+#add_custom_command(OUTPUT ${_out_qm}
+#                COMMAND ${Qt_LCONVERT_EXECUTABLE}
+#                ARGS -i ${_infiles}_ts -o ${_out_qm}
+#                COMMAND_EXPAND_LISTS VERBATIM)
+#				
+#add_custom_target(lupdate
+#    COMMAND ${Qt${QT_VERSION_MAJOR}_LUPDATE_EXECUTABLE} -recursive ${PROJECT_SOURCE_DIR} -ts *.ts
+#    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+#    COMMENT "Updating translations"
+#)
