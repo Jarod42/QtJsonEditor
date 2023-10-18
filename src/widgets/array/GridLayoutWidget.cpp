@@ -26,7 +26,7 @@ namespace array
 			grid_layout.addWidget(&buttonDelete, row, 1);
 			QObject::connect(&buttonDelete,
 			                 &QPushButton::clicked,
-			                 [this, &grid_layout, &parent]() {
+			                 [this, &parent]() {
 								 auto it =
 									 std::find_if(parent.jsonWidgets.begin(),
 				                                  parent.jsonWidgets.end(),
