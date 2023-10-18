@@ -65,6 +65,18 @@ jobs:
       run: |
         ./premake5 gmake && cd solution/gmake && make config=release
 
+    # Emscripten
+    - name: Setup emsdk
+      uses: mymindstorm/setup-emsdk@v11
+      with:
+        version: 1.38.40
+        actions-cache-folder: 'emsdk-cache'
+
+    - name: build with premake
+      run: |
+        ./premake5 gmake2 && cd solution/gmake2 && make config=release CXX=em++
+
+
 #
 #    - name: install libxkbcommon-x11-0 # display dependency
 #      run: sudo apt-get install libxkbcommon-x11-0
