@@ -55,8 +55,12 @@ QJsonValue JsonReferenceResolver::resolveReference(QString path) const
 	const auto json_reference_pointer = path.section("#", 1);
 
 	auto res = root;
-	for (auto part : json_reference_pointer.split('/', QString::SkipEmptyParts))
+	for (auto part : json_reference_pointer.split('/'))
 	{
+		// QString::SkipEmptyParts is deprecated
+		// whereas Qt::SkipEmptyParts is only available with Qt5.14.0
+		// So skip manually for portability
+		if (part.isEmpty()) { continue; }
 		const QString ref_token = resolve_reference_token(part);
 		bool ok = false;
 		const int index = ref_token.toInt(&ok);
