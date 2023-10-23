@@ -2,6 +2,9 @@
 
 #include "widgets/jsonKeys.h"
 
+#include <QEvent>
+#include <QLocale>
+
 //------------------------------------------------------------------------------
 DateEditWidget::DateEditWidget(QJsonValue json)
 {
@@ -30,4 +33,15 @@ void DateEditWidget::fromQJson(QJsonValue json) /*override*/
 {
 	QDate date = QDate::fromString(json.toString(), Qt::DateFormat::ISODate);
 	dateEdit.setDate(date);
+}
+
+//------------------------------------------------------------------------------
+void DateEditWidget::changeEvent(QEvent* event) /*override*/
+{
+	if (event->type() == QEvent::LanguageChange)
+	{
+		dateEdit.setDisplayFormat(QLocale().dateFormat(QLocale::ShortFormat));
+		dateEdit.setLocale(QLocale());
+	}
+	QWidget::changeEvent(event);
 }

@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QJsonDocument>
+#include <QLibraryInfo>
 #include <QTranslator>
 #include <array>
 #include <valijson/adapters/qtjson_adapter.hpp>
@@ -325,8 +326,11 @@ enum class EditorDialog::EState : char
 };
 
 //------------------------------------------------------------------------------
-EditorDialog::EditorDialog(QTranslator& translator, QWidget* parent) :
-	QMainWindow(parent), ui(std::make_unique<Ui::EditorDialog>()),
+EditorDialog::EditorDialog(QTranslator& qtTranslator,
+                           QTranslator& translator,
+                           QWidget* parent) :
+	QMainWindow(parent),
+	ui(std::make_unique<Ui::EditorDialog>()), qtTranslator(qtTranslator),
 	translator(translator), state(EState::Ready)
 {
 	ui->setupUi(this);
@@ -383,14 +387,20 @@ EditorDialog::EditorDialog(QTranslator& translator, QWidget* parent) :
 	QObject::connect(ui->actionEnglish, &QAction::triggered, this, [this]() {
 		ui->actionFrench->setChecked(false);
 		ui->actionEnglish->setChecked(true);
+		this->qtTranslator.load(
+			"qt_en", QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 		this->translator.load("qtjsoneditor_en.qm",
 		                      QApplication::applicationDirPath());
+		QLocale::setDefault(QLocale(QLocale::English));
 	});
 	QObject::connect(ui->actionFrench, &QAction::triggered, this, [this]() {
 		ui->actionFrench->setChecked(true);
 		ui->actionEnglish->setChecked(false);
+		this->qtTranslator.load(
+			"qt_fr", QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 		this->translator.load("qtjsoneditor_fr.qm",
 		                      QApplication::applicationDirPath());
+		QLocale::setDefault(QLocale(QLocale::French));
 	});
 	QObject::connect(ui->textEdit_json,
 	                 &QTextEdit::textChanged,

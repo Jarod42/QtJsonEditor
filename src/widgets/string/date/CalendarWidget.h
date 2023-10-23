@@ -12,6 +12,8 @@ public:
 	QJsonValue toQJson() const override;
 	void fromQJson(QJsonValue json) override;
 
+	void changeEvent(QEvent*) override;
+
 private:
 	QHBoxLayout layout;
 	QCalendarWidget calendarWidget;

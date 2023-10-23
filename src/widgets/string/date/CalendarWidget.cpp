@@ -3,6 +3,9 @@
 #include "ui/EditorDialog.h"
 #include "widgets/jsonKeys.h"
 
+#include <QEvent>
+#include <QLocale>
+
 //------------------------------------------------------------------------------
 CalendarWidget::CalendarWidget(QJsonValue json)
 {
@@ -33,4 +36,14 @@ void CalendarWidget::fromQJson(QJsonValue json) /*override*/
 {
 	QDate date = QDate::fromString(json.toString(), Qt::DateFormat::ISODate);
 	calendarWidget.setSelectedDate(date);
+}
+
+//------------------------------------------------------------------------------
+void CalendarWidget::changeEvent(QEvent* event) /*override*/
+{
+	if (event->type() == QEvent::LanguageChange)
+	{
+		calendarWidget.setLocale(QLocale());
+	}
+	QWidget::changeEvent(event);
 }

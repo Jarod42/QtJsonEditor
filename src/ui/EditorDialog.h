@@ -13,7 +13,7 @@ class EditorDialog : public QMainWindow
 {
 	Q_OBJECT
 public:
-	EditorDialog(QTranslator&, QWidget* parent = nullptr);
+	EditorDialog(QTranslator& qt, QTranslator& app, QWidget* parent = nullptr);
 	~EditorDialog();
 
 	void changeEvent(QEvent*) override;
@@ -32,6 +32,7 @@ private:
 	enum class EState : char;
 
 	std::unique_ptr<Ui::EditorDialog> ui;
+	QTranslator& qtTranslator;
 	QTranslator& translator;
 	EState state;
 };
