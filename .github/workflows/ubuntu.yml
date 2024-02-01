@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -38,13 +38,13 @@ jobs:
 
     # Premake
     - name: checkout premake5
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
           repository: premake/premake-core
           path: premake-build
 
     - name: checkout premake-qt
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
           repository: dcourtois/premake-qt
           path: premake-qt
