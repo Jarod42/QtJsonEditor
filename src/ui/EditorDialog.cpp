@@ -419,7 +419,7 @@ EditorDialog::EditorDialog(QTranslator& qtTranslator,
 	                 this,
 	                 &EditorDialog::updateJsonWidgets);
 	QObject::connect(ui->widget,
-	                 &QJsonWidget::hasChanged,
+	                 &QJsonWidget::valueChanged,
 	                 this,
 	                 &EditorDialog::updateJsonTextValues);
 

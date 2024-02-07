@@ -40,6 +40,9 @@ QString QtJsonWidgetPlugin::domXml() const /* override */
       <property name="schema">
         <string notr="true"></string>
       </property>
+      <property name="value">
+        <string notr="true">{}</string>
+      </property>
     </widget>
 </ui>)";
 }
