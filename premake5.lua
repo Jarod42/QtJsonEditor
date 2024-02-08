@@ -45,7 +45,7 @@ workspace "qt-json-editor"
   filter "configurations:Release"
     optimize "On"
     symbols "Off"
-    defines "NDEBUG"
+    defines { "NDEBUG", "QT_NO_DEBUG" }
 
   filter "toolset:gcc"
     buildoptions {"-Wno-unused-parameter"}
@@ -90,3 +90,17 @@ workspace "qt-json-editor"
 
     qtmodules { "core", "gui", "widgets" }
 
+  project "qt-json-designer-plugin"
+    kind "SharedLib"
+    files { "src/QtDesignerPlugin/**.*" }
+
+    includedirs "src"
+    qtmodules { "core", "gui", "widgets" }
+
+    links "qt-json-widget"
+
+    qtmocargs { "-I%{cfg.qtincludepath}" }
+
+    filter { "configurations:release" }
+        targetdir "%{cfg.qtpath}/plugins/designer"
+    filter {}
