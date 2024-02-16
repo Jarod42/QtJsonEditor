@@ -29,7 +29,7 @@ bool QtJsonWidgetPlugin::isInitialized() const /* override */
 //------------------------------------------------------------------------------
 QIcon QtJsonWidgetPlugin::icon() const /* override */
 {
-	return {};
+	return QIcon(":/json-file-icon.png");
 }
 
 //------------------------------------------------------------------------------
