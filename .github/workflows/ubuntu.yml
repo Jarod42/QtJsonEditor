@@ -53,7 +53,7 @@ jobs:
 
     - name: build with premake
       run: |
-        ./premake5 gmake && cd solution/gmake && make config=release
+        ./premake5 gmake2 && cd solution/gmake2 && make config=release_x64
 
 #
 #    - name: install libxkbcommon-x11-0 # display dependency

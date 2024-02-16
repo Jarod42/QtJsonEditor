@@ -21,8 +21,8 @@ print("QtRoot: ", QtRoot)
 workspace "qt-json-editor"
   location ( path.join("solution", _ACTION) )
   configurations { "Debug", "Release" }
+  platforms { "x32", "x64" }
 
-  --architecture "x64"
   cppdialect "C++17"
   warnings "Extra"
   externalanglebrackets "On"
@@ -39,6 +39,10 @@ workspace "qt-json-editor"
   end
   qtprefix "Qt5"
 
+  filter "platforms:x32"
+	architecture "x32"
+  filter "platforms:x64"
+    architecture "x64"
   filter "configurations:Debug"
     optimize "Off"
     symbols "On"

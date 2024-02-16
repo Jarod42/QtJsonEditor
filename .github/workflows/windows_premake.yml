@@ -1,0 +1,51 @@
+name: windows_premake
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Installing Qt - 5.15.0 win64_msvc2019_64 # No 2022 version yet
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.0'
+        arch: win64_msvc2019_64
+        cache: true
+        cache-key-prefix: 'qt-action-5.15.0_win64_msvc2019_64'
+
+    # Premake
+    - name: checkout premake5
+      uses: actions/checkout@v4
+      with:
+          repository: premake/premake-core
+          path: premake-build
+
+    - name: Build premake5
+      run: |
+        $vcvarall_path = vswhere -find VC\Auxiliary\Build\vcvarsall.bat
+        cmd.exe /c "call ""$vcvarall_path"" x86_amd64 && cd premake-build && nmake -f Bootstrap.mak MSDEV=vs2022 windows-msbuild PLATFORM=Win32 CONFIG=release && cp bin/release/premake5.exe ../"
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: build with premake
+      run: |
+        ./premake5 vs2022 --qt-root=$Env:Qt5_Dir && cd solution/vs2022 && msbuild.exe /property:Configuration=Release /property:Platform=x64 qt-json-editor.sln
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: qt-json-editor
+        path: |
+            bin/vs2022/Release/*.*
+            ${{ env.Qt5_Dir }}/plugins/designer/qt-json-designer-plugin.*
