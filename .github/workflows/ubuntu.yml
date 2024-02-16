@@ -43,12 +43,6 @@ jobs:
           repository: premake/premake-core
           path: premake-build
 
-    - name: checkout premake-qt
-      uses: actions/checkout@v4
-      with:
-          repository: dcourtois/premake-qt
-          path: premake-qt
-
     - name: Build premake5
       run: |
         cd premake-build
@@ -56,10 +50,6 @@ jobs:
         cp bin/release/premake5 ../
         cd ..
         rm -Rf premake-build
-
-    - name: add premake qt module
-      run: |
-        echo "require 'premake-qt/qt'" >> premake-system.lua
 
     - name: build with premake
       run: |

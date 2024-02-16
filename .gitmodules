@@ -1,3 +1,6 @@
 [submodule "submodules/valijson"]
 	path = submodules/valijson
 	url = https://github.com/tristanpenman/valijson.git
+[submodule "submodules/premake-qt"]
+	path = submodules/premake-qt
+	url = https://github.com/Jarod42/premake-qt.git

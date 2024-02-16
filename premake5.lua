@@ -1,3 +1,5 @@
+require 'submodules/premake-qt/qt'
+
 newoption {
   trigger = "qt-root",
   value = "path",
