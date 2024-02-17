@@ -47,5 +47,5 @@ jobs:
       with:
         name: qt-json-editor
         path: |
-            bin/vs2022/Release/*.*
+            bin/vs2022/x64/Release/*.*
             ${{ env.Qt5_Dir }}/plugins/designer/qt-json-designer-plugin.*

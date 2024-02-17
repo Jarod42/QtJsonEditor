@@ -3,12 +3,9 @@ require 'submodules/premake-qt/qt'
 newoption {
   trigger = "qt-root",
   value = "path",
-  description = "path of qt root (contains lib/libQt5Core.a include/Qt5Core bin)"
+  description = "Path of qt root (contains lib/libQt5Core.a include/Qt5Core bin)",
+  category = "script"
 }
-
-if (_ACTION == nil) then
-  return
-end
 
 local qt = premake.extensions.qt
 
@@ -19,7 +16,7 @@ end
 print("QtRoot: ", QtRoot)
 
 workspace "qt-json-editor"
-  location ( path.join("solution", _ACTION) )
+  location "solution/%{_ACTION}"
   configurations { "Debug", "Release" }
   platforms { "x32", "x64" }
 
@@ -28,8 +25,8 @@ workspace "qt-json-editor"
   externalanglebrackets "On"
   externalwarnings "Off"
 
-  objdir(path.join("obj", _ACTION)) -- premake add $(configName)/$(AppName)
-  targetdir(path.join("bin", _ACTION, "%{cfg.buildcfg}"))
+  objdir "obj/%{_ACTION}" -- premake adds $(platformName)/$(configName)/$(AppName)
+  targetdir "bin/%{_ACTION}/%{cfg.platform}/%{cfg.buildcfg}"
 
   qt.enable()
   qtuseexternalinclude ( true )
