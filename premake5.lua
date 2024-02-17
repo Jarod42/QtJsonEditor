@@ -13,6 +13,9 @@ if _OPTIONS["qt-root"] ~= nil then
   QtRoot = _OPTIONS["qt-root"]
 end
 
+print("Environment variable Qt5_Dir:", os.getenv("Qt5_Dir"))
+print("Environment variable QTDIR:", os.getenv("QTDIR"))
+print("Environment variable QT_DIR:", os.getenv("QT_DIR"))
 print("QtRoot: ", QtRoot)
 
 workspace "qt-json-editor"
