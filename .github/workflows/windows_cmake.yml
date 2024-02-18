@@ -1,0 +1,41 @@
+name: windows_cmake
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Installing Qt - 5.15.0 win64_msvc2019_64 # No 2022 version yet
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.0'
+        arch: win64_msvc2019_64
+        cache: true
+        cache-key-prefix: 'qt-action-5.15.0_win64_msvc2019_64'
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: build with cmake
+      run: |
+        mkdir cmake-build
+        cd cmake-build
+        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: qt-json-editor
+        path: |
+            cmake-build/Release/**.*
+            ${{ env.Qt5_Dir }}/plugins/designer/qt-json-designer-plugin.*
