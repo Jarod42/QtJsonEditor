@@ -1,6 +1,5 @@
 #include "CalendarWidget.h"
 
-#include "ui/EditorDialog.h"
 #include "widgets/jsonKeys.h"
 
 #include <QEvent>
