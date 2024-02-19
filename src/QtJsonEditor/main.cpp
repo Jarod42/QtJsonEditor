@@ -1,4 +1,4 @@
-#include "ui/EditorDialog.h"
+#include "QtJsonEditorDialog/EditorDialog.h"
 
 #include <QApplication>
 #include <QLibraryInfo>

@@ -70,18 +70,32 @@ workspace "qt-json-editor"
   startproject "qt-json-editor"
   project "qt-json-editor"
     kind "ConsoleApp"
-    files { "src/main.cpp", "src/ui/**.*" }
+    files { "src/QtJsonEditor/**.*" }
+
+    includedirs "src"
+
+    qtmodules { "core", "gui", "widgets" }
+
+    links { "qt-json-editor-dialog", "qt-json-widget" }
+
+  project "qt-json-editor-dialog"
+    kind "StaticLib"
+    files { "src/QtJsonEditorDialog/**.*" }
     files { "ts/*.ts" }
 
     qtlreleaseargs { "-nounfinished" }
     qtqmgenerateddir "%{cfg.targetdir}"
+    qtmodules { "core", "gui", "widgets" }
+
+  if _ACTION == "gmake" or _ACTION == "gmake2" or _ACTION == "codeblocks" then
+    -- qrelease doesn't create intermediate directory
+    -- and those actions don't create sub-directories neither for custombuild
+    -- So do it as pre-build step
+    prebuildcommands { "{MKDIR} %{cfg.qtqmgenerateddir}" }
+  end
 
     includedirs "src"
     includedirs "submodules/valijson/include"
-
-    qtmodules { "core", "gui", "widgets" }
-
-    links "qt-json-widget"
 
     filter {"files:ts/*_en.ts"}
       qtlreleaseargs { "-removeidentical" }
