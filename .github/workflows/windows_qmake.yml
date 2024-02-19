@@ -1,0 +1,43 @@
+name: windows_qmake
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Installing Qt - 5.15.0 win64_msvc2019_64 # No 2022 version yet
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.0'
+        arch: win64_msvc2019_64
+        cache: true
+        cache-key-prefix: 'qt-action-5.15.0_win64_msvc2019_64'
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Add cl.exe to PATH # microsoft/setup-msbuild doesn't add it :(
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: build with qmake
+      run: |
+        qmake -makefile src/qtjsoneditor.pro
+        make all
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: qt-json-editor
+        path: |
+            bin/**.*
+            ${{ env.Qt5_Dir }}/plugins/designer/qt-json-designer-plugin.*

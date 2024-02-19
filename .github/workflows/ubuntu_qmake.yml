@@ -1,0 +1,39 @@
+name: ubuntu_qmake
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Installing Qt5.15.0 ubuntu
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.0'
+        cache: true
+        cache-key-prefix: 'qt-action-5.15.0_ubuntu'
+
+    - name: test qmake
+      run: qmake --version
+
+    - name: build with qmake
+      run: |
+        qmake -makefile src/qtjsoneditor.pro
+        make all
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: qt-json-editor
+        path: |
+            bin/**.*
+            ${{ env.Qt5_Dir }}/plugins/designer/qt-json-designer-plugin.*
