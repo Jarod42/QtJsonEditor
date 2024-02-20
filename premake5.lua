@@ -103,7 +103,7 @@ workspace "qt-json-editor"
 
   project "qt-json-widget"
     kind "StaticLib"
-    files { "src/widgets/**.*" }
+    files { "src/QtJsonWidget/**.*" }
 
     includedirs "src"
     includedirs "submodules/valijson/include"

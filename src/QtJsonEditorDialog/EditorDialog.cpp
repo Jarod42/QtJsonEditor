@@ -1,7 +1,7 @@
 #include "EditorDialog.h"
 
 #include "ui_EditorDialog.h"
-#include "widgets/IJsonWidget.h"
+#include "QtJsonWidget/IJsonWidget.h"
 
 #include <QApplication>
 #include <QFileDialog>

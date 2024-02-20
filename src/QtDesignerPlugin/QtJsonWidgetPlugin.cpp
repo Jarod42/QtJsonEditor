@@ -7,7 +7,7 @@
 
 #define QDESIGNER_EXPORT_WIDGETS
 #define EXPORT QDESIGNER_WIDGET_EXPORT
-#include "widgets/QJsonWidget.h"
+#include "QtJsonWidget/QJsonWidget.h"
 
 //------------------------------------------------------------------------------
 /* explicit */ QtJsonWidgetPlugin::QtJsonWidgetPlugin(QObject* parent) :
@@ -56,7 +56,7 @@ QString QtJsonWidgetPlugin::group() const /* override */
 //------------------------------------------------------------------------------
 QString QtJsonWidgetPlugin::includeFile() const /* override */
 {
-	return QStringLiteral("widgets/QJsonWidget.h");
+	return QStringLiteral("QtJsonWidget/QJsonWidget.h");
 }
 
 //------------------------------------------------------------------------------

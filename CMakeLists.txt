@@ -18,7 +18,7 @@ project(QtJsonEditor)
 set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB_RECURSE QtJsonEditor_Plugin_SRCS "src/QtDesignerPlugin/*.*")
-file(GLOB_RECURSE QtJsonEditor_Widget_SRCS "src/widgets/*.cpp" "src/widgets/*.h")
+file(GLOB_RECURSE QtJsonEditor_Widget_SRCS "src/QtJsonWidget/*.cpp" "src/QtJsonWidget/*.h")
 file(GLOB_RECURSE QtJsonEditor_Dialog_SRCS "src/QtJsonEditorDialog/*.cpp" "src/QtJsonEditorDialog/*.h")
 file(GLOB_RECURSE QtJsonEditor_Ts "src/ts/*.ts") # Translations
 
