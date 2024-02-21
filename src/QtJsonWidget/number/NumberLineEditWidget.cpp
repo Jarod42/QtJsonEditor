@@ -1,19 +1,27 @@
-#include "LineEditWidget.h"
+#include "NumberLineEditWidget.h"
 
 #include "QtJsonWidget/jsonKeys.h"
 
-namespace string
+namespace number
 {
+
 	//--------------------------------------------------------------------------
 	LineEditWidget::LineEditWidget(QJsonValue json)
 	{
 		lineEdit.setObjectName(get_unique_name("lineEdit-"));
-		lineEdit.setText(json[json_keys::key_default].toString());
+		validator.setBottom(json[json_keys::key_minimum].toDouble(
+			std::numeric_limits<double>::min()));
+		validator.setTop(json[json_keys::key_maximum].toDouble(
+			std::numeric_limits<double>::max()));
+
+		lineEdit.setValidator(&validator);
+		lineEdit.setText(
+			QString::number(json[json_keys::key_default].toDouble()));
 		lineEdit.setPlaceholderText(
 			json[json_keys::key_placeholder].toString());
-
 		QObject::connect(
 			&lineEdit, &QLineEdit::textChanged, this, &IJsonWidget::hasChanged);
+
 		layout.addWidget(&lineEdit);
 		setLayout(&layout);
 	}
@@ -21,13 +29,13 @@ namespace string
 	//--------------------------------------------------------------------------
 	QJsonValue LineEditWidget::toQJson() const /*override*/
 	{
-		return lineEdit.text();
+		return QLocale().toDouble(lineEdit.text());
 	}
 
 	//--------------------------------------------------------------------------
 	void LineEditWidget::fromQJson(QJsonValue json) /*override*/
 	{
-		lineEdit.setText(json.toString());
+		lineEdit.setText(QString::number(json.toDouble()));
 	}
 
-} // namespace string
+} // namespace number

@@ -1,4 +1,4 @@
-#include "GridLayoutWidget.h"
+#include "ArrayGridLayoutWidget.h"
 
 #include "QtJsonWidget/jsonKeys.h"
 
