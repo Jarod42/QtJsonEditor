@@ -78,6 +78,10 @@ workspace "qt-json-editor"
 
     links { "qt-json-editor-dialog", "qt-json-widget" }
 
+    filter { "system:windows" }
+      postbuildcommands { '"%{cfg.qtpath}/bin/windeployqt.exe" "%{cfg.buildtarget.abspath}"' }
+    filter {}
+
   project "qt-json-editor-dialog"
     kind "StaticLib"
     files { "src/QtJsonEditorDialog/**.*" }
