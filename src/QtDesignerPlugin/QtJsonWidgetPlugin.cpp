@@ -5,8 +5,6 @@
 #include <QJsonValue>
 #include <QtUiPlugin/QDesignerExportWidget>
 
-#define QDESIGNER_EXPORT_WIDGETS
-#define EXPORT QDESIGNER_WIDGET_EXPORT
 #include "QtJsonWidget/QJsonWidget.h"
 
 //------------------------------------------------------------------------------

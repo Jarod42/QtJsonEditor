@@ -8,11 +8,7 @@
 #include <QWidget>
 #include <memory>
 
-#ifndef QDESIGNER_WIDGET_EXPORT
-# define QDESIGNER_WIDGET_EXPORT
-#endif
-
-class QDESIGNER_WIDGET_EXPORT QJsonWidget : public QWidget
+class QJsonWidget : public QWidget
 {
 	Q_OBJECT
 
