@@ -313,15 +313,32 @@ makeWidget(const JsonReferenceResolver& jsonReferenceResolver,
 		}
 		else if (format == json_keys::format_date)
 		{
-			return std::make_unique<CalendarWidget>(json);
-			//return std::make_unique<DateEditWidget>(json);
+			const auto style = json[json_keys::key_style];
+			if (style == json_keys::style_calendar)
+			{
+				return std::make_unique<CalendarWidget>(json);
+			}
+			else if (style == json_keys::style_dateedit)
+			{
+				return std::make_unique<DateEditWidget>(json);
+			}
+			else { return std::make_unique<CalendarWidget>(json); }
 		}
 		return std::make_unique<string::LineEditWidget>(json);
 	}
 	else if (type == json_keys::type_integer)
 	{
-		//return std::make_unique<integer::SpinBoxWidget>(json);
-		return std::make_unique<integer::LineEditWidget>(json);
+		const auto style = json[json_keys::key_style];
+
+		if (style == json_keys::style_lineedit)
+		{
+			return std::make_unique<integer::LineEditWidget>(json);
+		}
+		else if (style == json_keys::style_spinbox)
+		{
+			return std::make_unique<integer::SpinBoxWidget>(json);
+		}
+		else { return std::make_unique<integer::LineEditWidget>(json); }
 	}
 	else if (type == json_keys::type_number)
 	{

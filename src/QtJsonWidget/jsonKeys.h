@@ -18,11 +18,17 @@ namespace json_keys
 	inline constexpr auto key_propertyOrder = "propertyOrder";
 	inline constexpr auto key_ref = "$ref";
 	inline constexpr auto key_required = "required";
+	inline constexpr auto key_style = "style";
 	inline constexpr auto key_title = "title";
 	inline constexpr auto key_type = "type";
 
 	inline constexpr auto format_color = "color";
 	inline constexpr auto format_date = "date";
+
+	inline constexpr auto style_calendar = "calendar";
+	inline constexpr auto style_dateedit = "dateedit";
+	inline constexpr auto style_lineedit = "lineedit";
+	inline constexpr auto style_spinbox = "spinbox";
 
 	inline constexpr auto type_any = "any";
 	inline constexpr auto type_array = "array";
