@@ -72,89 +72,190 @@ class TypeSelectorWidget : public IJsonWidget
 		Object
 	};
 
+	//--------------------------------------------------------------------------
+	static QString tr(EType type)
+	{
+		switch (type)
+		{
+			case EType::Null: return IJsonWidget::tr("null");
+			case EType::Boolean: return IJsonWidget::tr("boolean");
+			case EType::Integer: return IJsonWidget::tr("integer");
+			case EType::Double: return IJsonWidget::tr("number");
+			case EType::String: return IJsonWidget::tr("string");
+			case EType::Array: return IJsonWidget::tr("array");
+			case EType::Object: return IJsonWidget::tr("object");
+		}
+		return "";
+	}
+
+	enum class EStringFormat
+	{
+		String,
+		Color,
+		Date
+	};
+
+	//--------------------------------------------------------------------------
+	static QString tr(EStringFormat stringFormat)
+	{
+		switch (stringFormat)
+		{
+			case EStringFormat::Color: return IJsonWidget::tr("color");
+			case EStringFormat::Date: return IJsonWidget::tr("date");
+			case EStringFormat::String: return IJsonWidget::tr("string");
+		}
+		return "";
+	}
+
+	enum class EDateStyle
+	{
+		Calendar,
+		DateEdit,
+	};
+
+	//--------------------------------------------------------------------------
+	static QString tr(EDateStyle style)
+	{
+		switch (style)
+		{
+			case EDateStyle::Calendar: return IJsonWidget::tr("Calendar");
+			case EDateStyle::DateEdit: return IJsonWidget::tr("Date edit");
+		}
+		return "";
+	}
+
+
+	enum class EIntegerStyle
+	{
+		LineEdit,
+		Spinbox
+	};
+
+	//--------------------------------------------------------------------------
+	static QString tr(EIntegerStyle style)
+	{
+		switch (style)
+		{
+			case EIntegerStyle::LineEdit: return IJsonWidget::tr("Line edit");
+			case EIntegerStyle::Spinbox: return IJsonWidget::tr("Spinbox");
+		}
+		return "";
+	}
+
 public:
+	//--------------------------------------------------------------------------
 	TypeSelectorWidget(const JsonReferenceResolver& jsonReferenceResolver,
 	                   QJsonValue json) :
 		jsonReferenceResolver(jsonReferenceResolver),
 		schema(json)
 	{
-		label.setObjectName(get_unique_name("(TypeSelectorWidget)label-"));
+		typeLabel.setObjectName(get_unique_name("(TypeSelectorWidget)label-"));
 		typeLayout.setObjectName(
 			get_unique_name("(TypeSelectorWidget)typeLayout-"));
 
-		typeLayout.addWidget(&label);
-		fillComboBox(json[json_keys::key_type]);
-		typeLayout.addWidget(&comboBox);
+		typeLayout.addWidget(&typeLabel);
+		fillTypeComboBox(json[json_keys::key_type]);
+		typeLayout.addWidget(&typeComboBox);
 		layout.addLayout(&typeLayout);
+
+		formatLayout.addWidget(&formatLabel);
+		fillStringFormatComboBox();
+		formatLayout.addWidget(&stringFormatComboBox);
+		layout.addLayout(&formatLayout);
+
+		styleLayout.addWidget(&styleLabel);
+		fillStyleComboBoxes();
+		styleLayout.addWidget(&integerStyleComboBox);
+		styleLayout.addWidget(&dateStyleComboBox);
+		layout.addLayout(&styleLayout);
 
 		widget = std::make_unique<null::LabelWidget>();
 		layout.addWidget(widget.get());
-		if (comboBox.count() != 0)
+		if (typeComboBox.count() != 0)
 		{
-			comboBox.setCurrentIndex(0);
-			currentIndexChanged(0);
+			typeComboBox.setCurrentIndex(0);
+			typeCurrentIndexChanged(0);
 		}
-		QObject::connect(&comboBox,
+		QObject::connect(&typeComboBox,
 		                 static_cast<void (QComboBox::*)(int index)>(
 							 &QComboBox::currentIndexChanged),
 		                 this,
-		                 &TypeSelectorWidget::currentIndexChanged);
+		                 &TypeSelectorWidget::typeCurrentIndexChanged);
+		QObject::connect(&stringFormatComboBox,
+		                 static_cast<void (QComboBox::*)(int index)>(
+							 &QComboBox::currentIndexChanged),
+		                 this,
+		                 &TypeSelectorWidget::stringFormatCurrentIndexChanged);
+
+		QObject::connect(&integerStyleComboBox,
+		                 static_cast<void (QComboBox::*)(int index)>(
+							 &QComboBox::currentIndexChanged),
+		                 this,
+		                 &TypeSelectorWidget::replaceWidget);
+		QObject::connect(&dateStyleComboBox,
+		                 static_cast<void (QComboBox::*)(int index)>(
+							 &QComboBox::currentIndexChanged),
+		                 this,
+		                 &TypeSelectorWidget::replaceWidget);
 
 		setLayout(&layout);
 		retranslateUi();
 	}
 
+	//--------------------------------------------------------------------------
 	QJsonValue toQJson() const override { return widget->toQJson(); }
+
+	//--------------------------------------------------------------------------
 	void fromQJson(QJsonValue json) override
 	{
 		auto type = deduceEType(json);
-		if (comboBox.currentData().toInt() != static_cast<int>(type))
+		if (typeComboBox.currentData().toInt() != static_cast<int>(type))
 		{
-			comboBox.setCurrentIndex(comboBox.findData(static_cast<int>(type)));
+			typeComboBox.setCurrentIndex(
+				typeComboBox.findData(static_cast<int>(type)));
 		}
 		widget->fromQJson(json);
 	}
 
+	//--------------------------------------------------------------------------
 	void changeEvent(QEvent* event) override
 	{
 		if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
 		QWidget::changeEvent(event);
 	}
 
+	//--------------------------------------------------------------------------
 	void retranslateUi()
 	{
-		label.setText(IJsonWidget::tr("type:"));
+		typeLabel.setText(IJsonWidget::tr("type:"));
+		formatLabel.setText(IJsonWidget::tr("format:"));
+		styleLabel.setText(IJsonWidget::tr("style:"));
 
-		for (int i = 0; i != comboBox.count(); ++i)
+		for (int i = 0; i != typeComboBox.count(); ++i)
 		{
-			switch (EType(comboBox.itemData(i).toInt()))
-			{
-				case EType::Null:
-					comboBox.setItemText(i, IJsonWidget::tr("null"));
-					break;
-				case EType::Boolean:
-					comboBox.setItemText(i, IJsonWidget::tr("boolean"));
-					break;
-				case EType::Integer:
-					comboBox.setItemText(i, IJsonWidget::tr("integer"));
-					break;
-				case EType::Double:
-					comboBox.setItemText(i, IJsonWidget::tr("number"));
-					break;
-				case EType::String:
-					comboBox.setItemText(i, IJsonWidget::tr("string"));
-					break;
-				case EType::Array:
-					comboBox.setItemText(i, IJsonWidget::tr("array"));
-					break;
-				case EType::Object:
-					comboBox.setItemText(i, IJsonWidget::tr("object"));
-					break;
-			}
+			typeComboBox.setItemText(
+				i, tr(EType(typeComboBox.itemData(i).toInt())));
+		}
+		for (int i = 0; i != stringFormatComboBox.count(); ++i)
+		{
+			stringFormatComboBox.setItemText(
+				i, tr(EStringFormat(stringFormatComboBox.itemData(i).toInt())));
+		}
+		for (int i = 0; i != integerStyleComboBox.count(); ++i)
+		{
+			integerStyleComboBox.setItemText(
+				i, tr(EIntegerStyle(integerStyleComboBox.itemData(i).toInt())));
+		}
+		for (int i = 0; i != dateStyleComboBox.count(); ++i)
+		{
+			dateStyleComboBox.setItemText(
+				i, tr(EDateStyle(dateStyleComboBox.itemData(i).toInt())));
 		}
 	}
 
 private:
+
+	//--------------------------------------------------------------------------
 	static EType deduceEType(QJsonValue json)
 	{
 		switch (json.type())
@@ -171,7 +272,8 @@ private:
 		}
 	}
 
-	void fillComboBox(QJsonValue type)
+	//--------------------------------------------------------------------------
+	void fillTypeComboBox(QJsonValue type)
 	{
 		const auto types = type.toArray();
 		const bool hasAny = types.contains(json_keys::type_any)
@@ -179,39 +281,69 @@ private:
 		                 || type.isUndefined();
 		if (hasAny || types.contains(json_keys::type_null))
 		{
-			comboBox.addItem("", int(EType::Null));
+			typeComboBox.addItem("", int(EType::Null));
 		}
 		if (hasAny || types.contains(json_keys::type_boolean))
 		{
-			comboBox.addItem("", int(EType::Boolean));
+			typeComboBox.addItem("", int(EType::Boolean));
 		}
 		if (hasAny || types.contains(json_keys::type_integer))
 		{
-			comboBox.addItem("", int(EType::Integer));
+			typeComboBox.addItem("", int(EType::Integer));
 		}
 		if (hasAny || types.contains(json_keys::type_number))
 		{
-			comboBox.addItem("", int(EType::Double));
+			typeComboBox.addItem("", int(EType::Double));
 		}
 		if (hasAny || types.contains(json_keys::type_string))
 		{
-			comboBox.addItem("", int(EType::String));
+			typeComboBox.addItem("", int(EType::String));
 		}
 		if (hasAny || types.contains(json_keys::type_array))
 		{
-			comboBox.addItem("", int(EType::Array));
+			typeComboBox.addItem("", int(EType::Array));
 		}
 		if (hasAny || types.contains(json_keys::type_object))
 		{
-			comboBox.addItem("", int(EType::Object));
+			typeComboBox.addItem("", int(EType::Object));
 		}
 		// types.contains({"$ref": "#"})
 	}
 
-	void currentIndexChanged(int index)
+	//--------------------------------------------------------------------------
+	void fillStringFormatComboBox()
 	{
-		auto newWidget =
-			makeWidget(static_cast<EType>(comboBox.itemData(index).toInt()));
+		stringFormatComboBox.addItem("", int(EStringFormat::String));
+		stringFormatComboBox.addItem("", int(EStringFormat::Color));
+		stringFormatComboBox.addItem("", int(EStringFormat::Date));
+	}
+
+	//--------------------------------------------------------------------------
+	void fillStyleComboBoxes()
+	{
+		integerStyleComboBox.addItem("", int(EIntegerStyle::LineEdit));
+		integerStyleComboBox.addItem("", int(EIntegerStyle::Spinbox));
+
+		dateStyleComboBox.addItem("", int(EDateStyle::Calendar));
+		dateStyleComboBox.addItem("", int(EDateStyle::DateEdit));
+	}
+
+	//--------------------------------------------------------------------------
+	void replaceWidget()
+	{
+		const auto type = static_cast<EType>(
+			typeComboBox.itemData(typeComboBox.currentIndex()).toInt());
+		const auto stringFormat = static_cast<EStringFormat>(
+			stringFormatComboBox.itemData(stringFormatComboBox.currentIndex())
+				.toInt());
+		const auto integerStyle = static_cast<EIntegerStyle>(
+			integerStyleComboBox.itemData(integerStyleComboBox.currentIndex())
+				.toInt());
+		const auto dateStyle = static_cast<EDateStyle>(
+			dateStyleComboBox.itemData(dateStyleComboBox.currentIndex())
+				.toInt());
+
+		auto newWidget = makeWidget(type, stringFormat, integerStyle, dateStyle);
 		layout.replaceWidget(widget.get(), newWidget.get());
 		widget = std::move(newWidget);
 		QObject::connect(widget.get(),
@@ -221,7 +353,76 @@ private:
 		emit hasChanged();
 	}
 
-	std::unique_ptr<IJsonWidget> makeWidget(EType type)
+	//--------------------------------------------------------------------------
+	void typeCurrentIndexChanged(int index)
+	{
+		const auto type = static_cast<EType>(typeComboBox.itemData(index).toInt());
+		switch (type)
+		{
+			case EType::String:
+			{
+				formatLabel.show();
+				stringFormatComboBox.show();
+				styleLabel.hide();
+				integerStyleComboBox.hide();
+				dateStyleComboBox.hide();
+				break;
+			}
+			case EType::Integer:
+			{
+				styleLabel.show();
+				integerStyleComboBox.show();
+
+				formatLabel.hide();
+				stringFormatComboBox.hide();
+				dateStyleComboBox.hide();
+				break;
+			}
+			default:
+			{
+				formatLabel.hide();
+				stringFormatComboBox.hide();
+				styleLabel.hide();
+				integerStyleComboBox.hide();
+				dateStyleComboBox.hide();
+				break;
+			}
+		}
+		replaceWidget();
+	}
+
+	//--------------------------------------------------------------------------
+	void stringFormatCurrentIndexChanged(int index)
+	{
+		const auto stringFormat = static_cast<EStringFormat>(
+			stringFormatComboBox.itemData(index).toInt());
+
+		stringFormatComboBox.show();
+		switch (stringFormat)
+		{
+			default:
+			case EStringFormat::Color:
+			case EStringFormat::String:
+			{
+				styleLabel.hide();
+				dateStyleComboBox.hide();
+				break;
+			}
+			case EStringFormat::Date:
+			{
+				styleLabel.show();
+				dateStyleComboBox.show();
+				break;
+			}
+		}
+		replaceWidget();
+	}
+
+	//--------------------------------------------------------------------------
+	std::unique_ptr<IJsonWidget> makeWidget(EType type,
+	                                        EStringFormat format,
+	                                        EIntegerStyle integerStyle,
+	                                        EDateStyle dateStyle)
 	{
 		switch (type)
 		{
@@ -231,9 +432,36 @@ private:
 			case EType::Double:
 				return std::make_unique<number::LineEditWidget>(schema);
 			case EType::Integer:
-				return std::make_unique<integer::LineEditWidget>(schema);
+			{
+				switch (integerStyle)
+				{
+					default:
+					case EIntegerStyle::LineEdit:
+						return std::make_unique<integer::LineEditWidget>(
+							schema);
+					case EIntegerStyle::Spinbox:
+						return std::make_unique<integer::SpinBoxWidget>(schema);
+				}
+			}
 			case EType::String:
-				return std::make_unique<string::LineEditWidget>(schema);
+			{
+				switch (format)
+				{
+					default:
+					case EStringFormat::String: return std::make_unique<string::LineEditWidget>(schema);
+					case EStringFormat::Date:
+					{
+						switch (dateStyle)
+						{
+							default:
+							case EDateStyle::Calendar:
+								return std::make_unique<CalendarWidget>(schema);
+							case EDateStyle::DateEdit: return std::make_unique<DateEditWidget>(schema);
+						}
+					}
+					case EStringFormat::Color: return std::make_unique<ColorDialogButtonWidget>(schema);
+				}
+			}
 			case EType::Array:
 				return std::make_unique<array::GridLayoutWidget>(
 					jsonReferenceResolver, schema);
@@ -249,8 +477,15 @@ private:
 	QJsonValue schema;
 	QVBoxLayout layout;
 	QHBoxLayout typeLayout;
-	QLabel label;
-	QComboBox comboBox;
+	QHBoxLayout formatLayout;
+	QHBoxLayout styleLayout;
+	QLabel typeLabel;
+	QLabel formatLabel;
+	QLabel styleLabel;
+	QComboBox typeComboBox;
+	QComboBox stringFormatComboBox;
+	QComboBox integerStyleComboBox;
+	QComboBox dateStyleComboBox;
 	std::unique_ptr<IJsonWidget> widget;
 };
 
