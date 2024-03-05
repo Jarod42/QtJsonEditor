@@ -69,12 +69,13 @@ workspace "qt-json-editor"
 
   startproject "qt-json-editor"
   project "qt-json-editor"
-    kind "ConsoleApp"
+    kind "WindowedApp"
     files { "src/QtJsonEditor/**.*" }
 
     includedirs "src"
 
     qtmodules { "core", "gui", "widgets" }
+    qtmain(true)
 
     links { "qt-json-editor-dialog", "qt-json-widget" }
 
