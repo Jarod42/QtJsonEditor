@@ -12,6 +12,11 @@ namespace integer
 		spinBox.setMaximum(json[json_keys::key_maximum].toInt());
 		spinBox.setValue(json[json_keys::key_default].toInt());
 
+		if (spinBox.minimum() == spinBox.maximum()) {
+			spinBox.setMinimum(std::numeric_limits<int>::min());
+			spinBox.setMaximum(std::numeric_limits<int>::max());
+		}
+
 		QObject::connect(
 			&spinBox,
 			static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
