@@ -34,10 +34,9 @@ namespace
 	}
 
 	//--------------------------------------------------------------------------
-	std::unique_ptr<IJsonWidget> makeWidget(EStyle integerStyle,
-	                                        QJsonValue schema)
+	std::unique_ptr<IJsonWidget> makeWidget(EStyle style, QJsonValue schema)
 	{
-		switch (integerStyle)
+		switch (style)
 		{
 			default:
 			case EStyle::Calendar:
@@ -103,10 +102,10 @@ void DateStyleSelectorWidget::retranslateUi()
 //--------------------------------------------------------------------------
 void DateStyleSelectorWidget::replaceWidget()
 {
-	const auto integerStyle = static_cast<EStyle>(
+	const auto style = static_cast<EStyle>(
 		styleComboBox.itemData(styleComboBox.currentIndex()).toInt());
 
-	auto newWidget = makeWidget(integerStyle, schema);
+	auto newWidget = makeWidget(style, schema);
 	newWidget->fromQJson(widget->toQJson());
 	vLayout.replaceWidget(widget.get(), newWidget.get());
 	widget = std::move(newWidget);
