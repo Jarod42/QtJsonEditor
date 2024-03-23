@@ -10,8 +10,7 @@
 #include "QtJsonWidget/object/ObjectGridLayoutWidget.h"
 #include "QtJsonWidget/string/StringLineEditWidget.h"
 #include "QtJsonWidget/string/color/ColorDialogButtonWidget.h"
-#include "QtJsonWidget/string/date/CalendarWidget.h"
-#include "QtJsonWidget/string/date/DateEditWidget.h"
+#include "QtJsonWidget/string/date/DateStyleSelectorWidget.h"
 #include "QtJsonWidget/string/enum/ComboBoxWidget.h"
 
 #include <QEvent>
@@ -106,23 +105,6 @@ class TypeSelectorWidget : public IJsonWidget
 		return "";
 	}
 
-	enum class EDateStyle
-	{
-		Calendar,
-		DateEdit,
-	};
-
-	//--------------------------------------------------------------------------
-	static QString tr(EDateStyle style)
-	{
-		switch (style)
-		{
-			case EDateStyle::Calendar: return IJsonWidget::tr("Calendar");
-			case EDateStyle::DateEdit: return IJsonWidget::tr("Date edit");
-		}
-		return "";
-	}
-
 public:
 	//--------------------------------------------------------------------------
 	TypeSelectorWidget(const JsonReferenceResolver& jsonReferenceResolver,
@@ -144,11 +126,6 @@ public:
 		formatLayout.addWidget(&stringFormatComboBox);
 		layout.addLayout(&formatLayout);
 
-		styleLayout.addWidget(&styleLabel);
-		fillStyleComboBoxes();
-		styleLayout.addWidget(&dateStyleComboBox);
-		layout.addLayout(&styleLayout);
-
 		widget = std::make_unique<null::LabelWidget>();
 		layout.addWidget(widget.get());
 		if (typeComboBox.count() != 0)
@@ -166,12 +143,6 @@ public:
 							 &QComboBox::currentIndexChanged),
 		                 this,
 		                 &TypeSelectorWidget::stringFormatCurrentIndexChanged);
-
-		QObject::connect(&dateStyleComboBox,
-		                 static_cast<void (QComboBox::*)(int index)>(
-							 &QComboBox::currentIndexChanged),
-		                 this,
-		                 &TypeSelectorWidget::replaceWidget);
 
 		setLayout(&layout);
 		retranslateUi();
@@ -204,7 +175,6 @@ public:
 	{
 		typeLabel.setText(IJsonWidget::tr("type:"));
 		formatLabel.setText(IJsonWidget::tr("format:"));
-		styleLabel.setText(IJsonWidget::tr("style:"));
 
 		for (int i = 0; i != typeComboBox.count(); ++i)
 		{
@@ -215,11 +185,6 @@ public:
 		{
 			stringFormatComboBox.setItemText(
 				i, tr(EStringFormat(stringFormatComboBox.itemData(i).toInt())));
-		}
-		for (int i = 0; i != dateStyleComboBox.count(); ++i)
-		{
-			dateStyleComboBox.setItemText(
-				i, tr(EDateStyle(dateStyleComboBox.itemData(i).toInt())));
 		}
 	}
 
@@ -288,13 +253,6 @@ private:
 	}
 
 	//--------------------------------------------------------------------------
-	void fillStyleComboBoxes()
-	{
-		dateStyleComboBox.addItem("", int(EDateStyle::Calendar));
-		dateStyleComboBox.addItem("", int(EDateStyle::DateEdit));
-	}
-
-	//--------------------------------------------------------------------------
 	void replaceWidget()
 	{
 		const auto type = static_cast<EType>(
@@ -302,11 +260,8 @@ private:
 		const auto stringFormat = static_cast<EStringFormat>(
 			stringFormatComboBox.itemData(stringFormatComboBox.currentIndex())
 				.toInt());
-		const auto dateStyle = static_cast<EDateStyle>(
-			dateStyleComboBox.itemData(dateStyleComboBox.currentIndex())
-				.toInt());
 
-		auto newWidget = makeWidget(type, stringFormat, dateStyle);
+		auto newWidget = makeWidget(type, stringFormat);
 		layout.replaceWidget(widget.get(), newWidget.get());
 		widget = std::move(newWidget);
 		QObject::connect(widget.get(),
@@ -327,16 +282,12 @@ private:
 			{
 				formatLabel.show();
 				stringFormatComboBox.show();
-				styleLabel.hide();
-				dateStyleComboBox.hide();
 				break;
 			}
 			default:
 			{
 				formatLabel.hide();
 				stringFormatComboBox.hide();
-				styleLabel.hide();
-				dateStyleComboBox.hide();
 				break;
 			}
 		}
@@ -344,35 +295,14 @@ private:
 	}
 
 	//--------------------------------------------------------------------------
-	void stringFormatCurrentIndexChanged(int index)
+	void stringFormatCurrentIndexChanged()
 	{
-		const auto stringFormat = static_cast<EStringFormat>(
-			stringFormatComboBox.itemData(index).toInt());
-
-		stringFormatComboBox.show();
-		switch (stringFormat)
-		{
-			default:
-			case EStringFormat::Color:
-			case EStringFormat::String:
-			{
-				styleLabel.hide();
-				dateStyleComboBox.hide();
-				break;
-			}
-			case EStringFormat::Date:
-			{
-				styleLabel.show();
-				dateStyleComboBox.show();
-				break;
-			}
-		}
 		replaceWidget();
 	}
 
 	//--------------------------------------------------------------------------
 	std::unique_ptr<IJsonWidget>
-	makeWidget(EType type, EStringFormat format, EDateStyle dateStyle)
+	makeWidget(EType type, EStringFormat format)
 	{
 		switch (type)
 		{
@@ -393,14 +323,8 @@ private:
 						return std::make_unique<string::LineEditWidget>(schema);
 					case EStringFormat::Date:
 					{
-						switch (dateStyle)
-						{
-							default:
-							case EDateStyle::Calendar:
-								return std::make_unique<CalendarWidget>(schema);
-							case EDateStyle::DateEdit:
-								return std::make_unique<DateEditWidget>(schema);
-						}
+						return std::make_unique<DateStyleSelectorWidget>(
+							schema);
 					}
 					case EStringFormat::Color:
 						return std::make_unique<ColorDialogButtonWidget>(
@@ -423,13 +347,10 @@ private:
 	QVBoxLayout layout;
 	QHBoxLayout typeLayout;
 	QHBoxLayout formatLayout;
-	QHBoxLayout styleLayout;
 	QLabel typeLabel;
 	QLabel formatLabel;
-	QLabel styleLabel;
 	QComboBox typeComboBox;
 	QComboBox stringFormatComboBox;
-	QComboBox dateStyleComboBox;
 	std::unique_ptr<IJsonWidget> widget;
 };
 
@@ -492,16 +413,7 @@ makeWidget(const JsonReferenceResolver& jsonReferenceResolver,
 		}
 		else if (format == json_keys::format_date)
 		{
-			const auto style = json[json_keys::key_style];
-			if (style == json_keys::style_calendar)
-			{
-				return std::make_unique<CalendarWidget>(json);
-			}
-			else if (style == json_keys::style_dateedit)
-			{
-				return std::make_unique<DateEditWidget>(json);
-			}
-			else { return std::make_unique<CalendarWidget>(json); }
+			return std::make_unique<DateStyleSelectorWidget>(json);
 		}
 		return std::make_unique<string::LineEditWidget>(json);
 	}
