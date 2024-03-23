@@ -36,7 +36,7 @@ namespace integer
 			else { return std::nullopt; }
 		}
 
-		//--------------------------------------------------------------------------
+		//----------------------------------------------------------------------
 		std::unique_ptr<IJsonWidget> makeWidget(EStyle style, QJsonValue schema)
 		{
 			switch (style)
@@ -60,6 +60,10 @@ namespace integer
 		const auto style = toEStyle(schema[json_keys::key_style].toString());
 		constexpr auto defaultStyle = EStyle::LineEdit;
 		widget = makeWidget(style.value_or(defaultStyle), schema);
+		QObject::connect(widget.get(),
+		                 &IJsonWidget::hasChanged,
+		                 this,
+		                 &IJsonWidget::hasChanged);
 		styleComboBox.setCurrentIndex(styleComboBox.findData(
 			static_cast<int>(style.value_or(defaultStyle))));
 		if (style)

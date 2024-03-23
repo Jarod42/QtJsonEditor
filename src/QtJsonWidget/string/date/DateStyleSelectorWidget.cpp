@@ -1,20 +1,20 @@
 #include "DateStyleSelectorWidget.h"
 
+#include "QtJsonWidget/jsonKeys.h"
 #include "QtJsonWidget/string/date/CalendarWidget.h"
 #include "QtJsonWidget/string/date/DateEditWidget.h"
-#include "QtJsonWidget/jsonKeys.h"
 
 namespace
 {
 
-	//----------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	enum class EStyle
 	{
 		Calendar,
 		DateEdit,
 	};
 
-	//----------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	QString tr(EStyle style)
 	{
 		switch (style)
@@ -25,7 +25,7 @@ namespace
 		return "";
 	}
 
-	//----------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	std::optional<EStyle> toEStyle(QString s)
 	{
 		if (s == json_keys::style_calendar) { return EStyle::Calendar; }
@@ -47,7 +47,7 @@ namespace
 	}
 } // namespace
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 DateStyleSelectorWidget::DateStyleSelectorWidget(QJsonValue schema) :
 	schema(schema)
 {
@@ -57,6 +57,8 @@ DateStyleSelectorWidget::DateStyleSelectorWidget(QJsonValue schema) :
 	const auto style = toEStyle(schema[json_keys::key_style].toString());
 	constexpr auto defaultStyle = EStyle::Calendar;
 	widget = makeWidget(style.value_or(defaultStyle), schema);
+	QObject::connect(
+		widget.get(), &IJsonWidget::hasChanged, this, &IJsonWidget::hasChanged);
 	styleComboBox.setCurrentIndex(
 		styleComboBox.findData(static_cast<int>(style.value_or(defaultStyle))));
 	if (style)
@@ -81,14 +83,14 @@ DateStyleSelectorWidget::DateStyleSelectorWidget(QJsonValue schema) :
 	retranslateUi();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void DateStyleSelectorWidget::changeEvent(QEvent* event) /* override */
 {
 	if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
 	QWidget::changeEvent(event);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void DateStyleSelectorWidget::retranslateUi()
 {
 	styleLabel.setText(IJsonWidget::tr("style:"));
@@ -99,7 +101,7 @@ void DateStyleSelectorWidget::retranslateUi()
 	}
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void DateStyleSelectorWidget::replaceWidget()
 {
 	const auto style = static_cast<EStyle>(

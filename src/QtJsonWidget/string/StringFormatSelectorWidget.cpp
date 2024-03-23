@@ -7,7 +7,7 @@
 
 namespace
 {
-
+	//--------------------------------------------------------------------------
 	enum class EFormat
 	{
 		String,
@@ -27,7 +27,7 @@ namespace
 		return "";
 	}
 
-	//----------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	std::optional<EFormat> toEFormat(QString s)
 	{
 		if (s == json_keys::format_color) { return EFormat::Color; }
@@ -37,8 +37,7 @@ namespace
 	}
 
 	//--------------------------------------------------------------------------
-	std::unique_ptr<IJsonWidget> makeWidget(EFormat format,
-	                                        QJsonValue schema)
+	std::unique_ptr<IJsonWidget> makeWidget(EFormat format, QJsonValue schema)
 	{
 		switch (format)
 		{
@@ -55,7 +54,7 @@ namespace
 	}
 } // namespace
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 StringFormatSelectorWidget::StringFormatSelectorWidget(QJsonValue schema) :
 	schema(schema)
 {
@@ -69,8 +68,8 @@ StringFormatSelectorWidget::StringFormatSelectorWidget(QJsonValue schema) :
 	QObject::connect(
 		widget.get(), &IJsonWidget::hasChanged, this, &IJsonWidget::hasChanged);
 
-	formatComboBox.setCurrentIndex(
-		formatComboBox.findData(static_cast<int>(format.value_or(defaultFormat))));
+	formatComboBox.setCurrentIndex(formatComboBox.findData(
+		static_cast<int>(format.value_or(defaultFormat))));
 	if (format)
 	{
 		formatComboBox.hide();
@@ -93,14 +92,14 @@ StringFormatSelectorWidget::StringFormatSelectorWidget(QJsonValue schema) :
 	retranslateUi();
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void StringFormatSelectorWidget::changeEvent(QEvent* event) /* override */
 {
 	if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
 	QWidget::changeEvent(event);
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void StringFormatSelectorWidget::retranslateUi()
 {
 	formatLabel.setText(IJsonWidget::tr("format:"));
@@ -111,7 +110,7 @@ void StringFormatSelectorWidget::retranslateUi()
 	}
 }
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void StringFormatSelectorWidget::replaceWidget()
 {
 	const auto format = static_cast<EFormat>(
