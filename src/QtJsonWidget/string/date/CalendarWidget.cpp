@@ -16,6 +16,7 @@ CalendarWidget::CalendarWidget(QJsonValue json)
 		json[json_keys::key_maximum].toString(), Qt::DateFormat::ISODate));
 	calendarWidget.setSelectedDate(QDate::fromString(
 		json[json_keys::key_default].toString(), Qt::DateFormat::ISODate));
+	calendarWidget.setLocale(QLocale());
 	QObject::connect(&calendarWidget,
 	                 &QCalendarWidget::selectionChanged,
 	                 this,
