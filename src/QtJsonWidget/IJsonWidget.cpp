@@ -8,9 +8,7 @@
 #include "QtJsonWidget/null/LabelWidget.h"
 #include "QtJsonWidget/number/NumberLineEditWidget.h"
 #include "QtJsonWidget/object/ObjectGridLayoutWidget.h"
-#include "QtJsonWidget/string/StringLineEditWidget.h"
-#include "QtJsonWidget/string/color/ColorDialogButtonWidget.h"
-#include "QtJsonWidget/string/date/DateStyleSelectorWidget.h"
+#include "QtJsonWidget/string/StringFormatSelectorWidget.h"
 #include "QtJsonWidget/string/enum/ComboBoxWidget.h"
 
 #include <QEvent>
@@ -86,25 +84,6 @@ class TypeSelectorWidget : public IJsonWidget
 		return "";
 	}
 
-	enum class EStringFormat
-	{
-		String,
-		Color,
-		Date
-	};
-
-	//--------------------------------------------------------------------------
-	static QString tr(EStringFormat stringFormat)
-	{
-		switch (stringFormat)
-		{
-			case EStringFormat::Color: return IJsonWidget::tr("color");
-			case EStringFormat::Date: return IJsonWidget::tr("date");
-			case EStringFormat::String: return IJsonWidget::tr("string");
-		}
-		return "";
-	}
-
 public:
 	//--------------------------------------------------------------------------
 	TypeSelectorWidget(const JsonReferenceResolver& jsonReferenceResolver,
@@ -121,28 +100,18 @@ public:
 		typeLayout.addWidget(&typeComboBox);
 		layout.addLayout(&typeLayout);
 
-		formatLayout.addWidget(&formatLabel);
-		fillStringFormatComboBox();
-		formatLayout.addWidget(&stringFormatComboBox);
-		layout.addLayout(&formatLayout);
-
 		widget = std::make_unique<null::LabelWidget>();
 		layout.addWidget(widget.get());
 		if (typeComboBox.count() != 0)
 		{
 			typeComboBox.setCurrentIndex(0);
-			typeCurrentIndexChanged(0);
+			typeCurrentIndexChanged();
 		}
 		QObject::connect(&typeComboBox,
 		                 static_cast<void (QComboBox::*)(int index)>(
 							 &QComboBox::currentIndexChanged),
 		                 this,
 		                 &TypeSelectorWidget::typeCurrentIndexChanged);
-		QObject::connect(&stringFormatComboBox,
-		                 static_cast<void (QComboBox::*)(int index)>(
-							 &QComboBox::currentIndexChanged),
-		                 this,
-		                 &TypeSelectorWidget::stringFormatCurrentIndexChanged);
 
 		setLayout(&layout);
 		retranslateUi();
@@ -174,17 +143,11 @@ public:
 	void retranslateUi()
 	{
 		typeLabel.setText(IJsonWidget::tr("type:"));
-		formatLabel.setText(IJsonWidget::tr("format:"));
 
 		for (int i = 0; i != typeComboBox.count(); ++i)
 		{
 			typeComboBox.setItemText(
 				i, tr(EType(typeComboBox.itemData(i).toInt())));
-		}
-		for (int i = 0; i != stringFormatComboBox.count(); ++i)
-		{
-			stringFormatComboBox.setItemText(
-				i, tr(EStringFormat(stringFormatComboBox.itemData(i).toInt())));
 		}
 	}
 
@@ -245,23 +208,12 @@ private:
 	}
 
 	//--------------------------------------------------------------------------
-	void fillStringFormatComboBox()
-	{
-		stringFormatComboBox.addItem("", int(EStringFormat::String));
-		stringFormatComboBox.addItem("", int(EStringFormat::Color));
-		stringFormatComboBox.addItem("", int(EStringFormat::Date));
-	}
-
-	//--------------------------------------------------------------------------
 	void replaceWidget()
 	{
 		const auto type = static_cast<EType>(
 			typeComboBox.itemData(typeComboBox.currentIndex()).toInt());
-		const auto stringFormat = static_cast<EStringFormat>(
-			stringFormatComboBox.itemData(stringFormatComboBox.currentIndex())
-				.toInt());
 
-		auto newWidget = makeWidget(type, stringFormat);
+		auto newWidget = makeWidget(type);
 		layout.replaceWidget(widget.get(), newWidget.get());
 		widget = std::move(newWidget);
 		QObject::connect(widget.get(),
@@ -272,37 +224,13 @@ private:
 	}
 
 	//--------------------------------------------------------------------------
-	void typeCurrentIndexChanged(int index)
-	{
-		const auto type =
-			static_cast<EType>(typeComboBox.itemData(index).toInt());
-		switch (type)
-		{
-			case EType::String:
-			{
-				formatLabel.show();
-				stringFormatComboBox.show();
-				break;
-			}
-			default:
-			{
-				formatLabel.hide();
-				stringFormatComboBox.hide();
-				break;
-			}
-		}
-		replaceWidget();
-	}
-
-	//--------------------------------------------------------------------------
-	void stringFormatCurrentIndexChanged()
+	void typeCurrentIndexChanged()
 	{
 		replaceWidget();
 	}
 
 	//--------------------------------------------------------------------------
-	std::unique_ptr<IJsonWidget>
-	makeWidget(EType type, EStringFormat format)
+	std::unique_ptr<IJsonWidget> makeWidget(EType type)
 	{
 		switch (type)
 		{
@@ -316,20 +244,7 @@ private:
 					schema);
 			case EType::String:
 			{
-				switch (format)
-				{
-					default:
-					case EStringFormat::String:
-						return std::make_unique<string::LineEditWidget>(schema);
-					case EStringFormat::Date:
-					{
-						return std::make_unique<DateStyleSelectorWidget>(
-							schema);
-					}
-					case EStringFormat::Color:
-						return std::make_unique<ColorDialogButtonWidget>(
-							schema);
-				}
+				return std::make_unique<StringFormatSelectorWidget>(schema);
 			}
 			case EType::Array:
 				return std::make_unique<array::GridLayoutWidget>(
@@ -346,11 +261,8 @@ private:
 	QJsonValue schema;
 	QVBoxLayout layout;
 	QHBoxLayout typeLayout;
-	QHBoxLayout formatLayout;
 	QLabel typeLabel;
-	QLabel formatLabel;
 	QComboBox typeComboBox;
-	QComboBox stringFormatComboBox;
 	std::unique_ptr<IJsonWidget> widget;
 };
 
@@ -406,16 +318,7 @@ makeWidget(const JsonReferenceResolver& jsonReferenceResolver,
 		{
 			return std::make_unique<string::ComboBoxWidget>(json);
 		}
-		const auto format = json[json_keys::key_format];
-		if (format == json_keys::format_color)
-		{
-			return std::make_unique<ColorDialogButtonWidget>(json);
-		}
-		else if (format == json_keys::format_date)
-		{
-			return std::make_unique<DateStyleSelectorWidget>(json);
-		}
-		return std::make_unique<string::LineEditWidget>(json);
+		return std::make_unique<StringFormatSelectorWidget>(json);
 	}
 	else if (type == json_keys::type_integer)
 	{
