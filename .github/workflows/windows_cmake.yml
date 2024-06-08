@@ -9,19 +9,27 @@ jobs:
   windows:
     runs-on: windows-latest
 
+    strategy:
+      fail-fast: true
+      matrix:
+        qt-version: ['5.15.0', '6.0.4', '6.7.0']
+
+        include:
+          - qt-arch: 'win64_msvc2019_64' # No 2022 version yet
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Installing Qt - 5.15.0 win64_msvc2019_64 # No 2022 version yet
+    - name: Installing Qt - ${{matrix.qt-version}} ${{matrix.qt-arch}}
       uses: jurplel/install-qt-action@v4
       with:
-        version: '5.15.0'
-        arch: win64_msvc2019_64
+        version: ${{matrix.qt-version}}
+        arch: ${{matrix.qt-arch}}
         cache: true
-        cache-key-prefix: 'qt-action@v4-Qt5.15.0_win64_msvc2019_64'
+        cache-key-prefix: 'qt-action@v4-Qt${{matrix.qt-version}}_${{matrix.qt-arch}}'
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -35,7 +43,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: qt-json-editor
+        name: qt-json-editor-qt${{matrix.qt-version}}
         path: |
             cmake-build/Release/**.*
             ${{ env.QT_ROOT_DIR }}/plugins/designer/qt-json-designer-plugin.*

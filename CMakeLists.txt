@@ -27,7 +27,11 @@ GroupSources(src)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets Core Gui REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets) # LinguistTools
+if (NOT Qt6_FOUND)
+    find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets) # Qt 5.15 introduced versionless targets
+endif()
+
 #find_package(Qt5 COMPONENTS Widgets Core Gui LinguistTools REQUIRED)
 
 add_library(qt_json_plugin SHARED ${QtJsonEditor_Plugin_SRCS})
@@ -35,7 +39,7 @@ target_link_libraries(qt_json_plugin PUBLIC qt_json_widget)
 target_include_directories(qt_json_plugin PUBLIC "src")
 
 add_library(qt_json_widget STATIC ${QtJsonEditor_Widget_SRCS})
-target_link_libraries(qt_json_widget PUBLIC Qt5::Widgets Qt5::Core Qt5::Gui)
+target_link_libraries(qt_json_widget PUBLIC Qt::Widgets Qt::Core Qt::Gui)
 target_include_directories(qt_json_widget PUBLIC "src" "submodules/valijson/include")
 
 add_library(qt_json_dialog STATIC ${QtJsonEditor_Dialog_SRCS})
