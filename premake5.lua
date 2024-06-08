@@ -49,6 +49,10 @@ workspace "qt-json-editor"
   end
   qtversion ( _OPTIONS["qt-version"] )
 
+if premake.checkVersion(_OPTIONS["qt-version"], '>=6.0 <6.1') and os.target() ~= premake.WINDOWS then
+  forceincludes "src/Qt6_0_workaround.h"
+end
+
   filter "platforms:x32"
     architecture "x32"
   filter "platforms:x64"

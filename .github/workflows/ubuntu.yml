@@ -9,18 +9,24 @@ jobs:
   linux:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: true
+      matrix:
+        qt-version: ['5.15.0', '6.0.4']
+        # In qt6.1+, moc/uic/rcc binaries have been move from usr/bin to usr/libexec
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Installing Qt5.15.0 ubuntu
+    - name: Installing Qt${{matrix.qt-version}} ubuntu
       uses: jurplel/install-qt-action@v4
       with:
-        version: '5.15.0'
+        version: ${{matrix.qt-version}}
         cache: true
-        cache-key-prefix: 'qt-action@v4-Qt5.15.0_ubuntu'
+        cache-key-prefix: 'qt-action@v4-Qt${{matrix.qt-version}}_ubuntu'
 
     - name: set path
       run: |
@@ -53,7 +59,7 @@ jobs:
 
     - name: build with premake
       run: |
-        ./premake5 gmake2 && cd solution/gmake2 && make config=release_x64
+        ./premake5 gmake2 --qt-version=${{matrix.qt-version}} && cd solution/gmake2 && make config=release_x64
 
 #
 #    - name: install libxkbcommon-x11-0 # display dependency

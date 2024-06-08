@@ -9,19 +9,26 @@ jobs:
   windows:
     runs-on: windows-latest
 
+    strategy:
+      fail-fast: true
+      matrix:
+        qt-version: ['5.15.0', '6.0.4']
+        include:
+          - qt-arch: 'win64_msvc2019_64' # No 2022 version yet
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Installing Qt - 5.15.0 win64_msvc2019_64 # No 2022 version yet
+    - name: Installing Qt - ${{matrix.qt-version}} ${{matrix.qt-arch}}
       uses: jurplel/install-qt-action@v4
       with:
-        version: '5.15.0'
-        arch: win64_msvc2019_64
+        version: ${{matrix.qt-version}}
+        arch: ${{matrix.qt-arch}}
         cache: true
-        cache-key-prefix: 'qt-action@v4-Qt5.15.0_win64_msvc2019_64'
+        cache-key-prefix: 'qt-action@v4-Qt${{matrix.qt-version}}_${{matrix.qt-arch}}'
 
     # Premake
     - name: checkout premake5
@@ -40,12 +47,12 @@ jobs:
 
     - name: build with premake
       run: |
-        ./premake5 vs2022 --qt-root=$Env:QT_ROOT_DIR && cd solution/vs2022 && msbuild.exe /property:Configuration=Release /property:Platform=x64 qt-json-editor.sln
+        ./premake5 vs2022 --qt-root=$Env:QT_ROOT_DIR --qt-version=${{matrix.qt-version}} && cd solution/vs2022 && msbuild.exe /property:Configuration=Release /property:Platform=x64 qt-json-editor.sln
 
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: qt-json-editor
+        name: qt-json-editor-qt${{matrix.qt-version}}
         path: |
             bin/vs2022/x64/Release/*.*
             ${{ env.QT_ROOT_DIR }}/plugins/designer/qt-json-designer-plugin.*

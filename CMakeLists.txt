@@ -28,8 +28,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 COMPONENTS Core Gui Widgets) # LinguistTools
-if (NOT Qt6_FOUND)
-    find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets) # Qt 5.15 introduced versionless targets
+if (Qt6_FOUND)
+  if (NOT MSVC)
+    add_compile_options( -include "${CMAKE_SOURCE_DIR}/src/Qt6_0_workaround.h") # workaround for Qt6.0 with missing #include <limits>
+  endif()
+else()
+  find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets) # Qt 5.15 introduced versionless targets
 endif()
 
 #find_package(Qt5 COMPONENTS Widgets Core Gui LinguistTools REQUIRED)
