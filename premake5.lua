@@ -7,6 +7,14 @@ newoption {
   category = "script"
 }
 
+newoption {
+  trigger = "qt-version",
+  value = "version",
+  description = "Version of Qt",
+  default = "5.15.0",
+  category = "script"
+}
+
 local qt = premake.extensions.qt
 
 if _OPTIONS["qt-root"] ~= nil then
@@ -14,6 +22,8 @@ if _OPTIONS["qt-root"] ~= nil then
 end
 
 print("Environment variable Qt5_Dir:", os.getenv("Qt5_Dir"))
+print("Environment variable Qt6_Dir:", os.getenv("Qt6_Dir"))
+print("Environment variable QT_ROOT_DIR:", os.getenv("QT_ROOT_DIR"))
 print("Environment variable QTDIR:", os.getenv("QTDIR"))
 print("Environment variable QT_DIR:", os.getenv("QT_DIR"))
 print("QtRoot: ", QtRoot)
@@ -31,16 +41,16 @@ workspace "qt-json-editor"
   objdir "obj/%{_ACTION}" -- premake adds $(platformName)/$(configName)/$(AppName)
   targetdir "bin/%{_ACTION}/%{cfg.platform}/%{cfg.buildcfg}"
 
-  qt.enable()
+  qt.enable(string.sub(_OPTIONS["qt-version"], 1, 1))
   qtuseexternalinclude ( true )
 
   if (QtRoot ~= nil and QtRoot ~= "") then
     qtpath(QtRoot)
   end
-  qtprefix "Qt5"
+  qtversion ( _OPTIONS["qt-version"] )
 
   filter "platforms:x32"
-	architecture "x32"
+    architecture "x32"
   filter "platforms:x64"
     architecture "x64"
   filter "configurations:Debug"
