@@ -17,6 +17,8 @@ jobs:
           - qt-arch: 'win64_msvc2019_64' # No 2022 version yet
 
     steps:
+    - uses: Jarod42/install-premake5@v1
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -30,24 +32,12 @@ jobs:
         cache: true
         cache-key-prefix: 'qt-action@v4-Qt${{matrix.qt-version}}_${{matrix.qt-arch}}'
 
-    # Premake
-    - name: checkout premake5
-      uses: actions/checkout@v4
-      with:
-          repository: premake/premake-core
-          path: premake-build
-
-    - name: Build premake5
-      run: |
-        $vcvarall_path = vswhere -find VC\Auxiliary\Build\vcvarsall.bat
-        cmd.exe /c "call ""$vcvarall_path"" x86_amd64 && cd premake-build && nmake -f Bootstrap.mak MSDEV=vs2022 windows-msbuild PLATFORM=Win32 CONFIG=release && cp bin/release/premake5.exe ../"
-
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
 
     - name: build with premake
       run: |
-        ./premake5 vs2022 --qt-root=$Env:QT_ROOT_DIR --qt-version=${{matrix.qt-version}} && cd solution/vs2022 && msbuild.exe /property:Configuration=Release /property:Platform=x64 qt-json-editor.sln
+        premake5 vs2022 --qt-root=$Env:QT_ROOT_DIR --qt-version=${{matrix.qt-version}} && cd solution/vs2022 && msbuild.exe /property:Configuration=Release /property:Platform=x64 qt-json-editor.sln
 
     - name: Upload
       uses: actions/upload-artifact@v4

@@ -43,23 +43,11 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 
     # Premake
-    - name: checkout premake5
-      uses: actions/checkout@v4
-      with:
-          repository: premake/premake-core
-          path: premake-build
-
-    - name: Build premake5
-      run: |
-        cd premake-build
-        make -f Bootstrap.mak linux CONFIG=release
-        cp bin/release/premake5 ../
-        cd ..
-        rm -Rf premake-build
+    - uses: Jarod42/install-premake5@v1
 
     - name: build with premake
       run: |
-        ./premake5 gmake2 --qt-version=${{matrix.qt-version}} && cd solution/gmake2 && make config=release_x64
+        premake5 gmake2 --qt-version=${{matrix.qt-version}} && cd solution/gmake2 && make config=release_x64
 
 #
 #    - name: install libxkbcommon-x11-0 # display dependency
