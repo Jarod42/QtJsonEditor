@@ -147,7 +147,7 @@ public:
 		for (int i = 0; i != typeComboBox.count(); ++i)
 		{
 			typeComboBox.setItemText(
-				i, tr(EType(typeComboBox.itemData(i).toInt())));
+				i, tr(static_cast<EType>(typeComboBox.itemData(i).toInt())));
 		}
 	}
 
@@ -178,31 +178,31 @@ private:
 		                 || type.isUndefined();
 		if (hasAny || types.contains(json_keys::type_null))
 		{
-			typeComboBox.addItem("", int(EType::Null));
+			typeComboBox.addItem("", static_cast<int>(EType::Null));
 		}
 		if (hasAny || types.contains(json_keys::type_boolean))
 		{
-			typeComboBox.addItem("", int(EType::Boolean));
+			typeComboBox.addItem("", static_cast<int>(EType::Boolean));
 		}
 		if (hasAny || types.contains(json_keys::type_integer))
 		{
-			typeComboBox.addItem("", int(EType::Integer));
+			typeComboBox.addItem("", static_cast<int>(EType::Integer));
 		}
 		if (hasAny || types.contains(json_keys::type_number))
 		{
-			typeComboBox.addItem("", int(EType::Double));
+			typeComboBox.addItem("", static_cast<int>(EType::Double));
 		}
 		if (hasAny || types.contains(json_keys::type_string))
 		{
-			typeComboBox.addItem("", int(EType::String));
+			typeComboBox.addItem("", static_cast<int>(EType::String));
 		}
 		if (hasAny || types.contains(json_keys::type_array))
 		{
-			typeComboBox.addItem("", int(EType::Array));
+			typeComboBox.addItem("", static_cast<int>(EType::Array));
 		}
 		if (hasAny || types.contains(json_keys::type_object))
 		{
-			typeComboBox.addItem("", int(EType::Object));
+			typeComboBox.addItem("", static_cast<int>(EType::Object));
 		}
 		// types.contains({"$ref": "#"})
 	}
@@ -270,7 +270,7 @@ private:
 class LabelWidget : public IJsonWidget
 {
 public:
-	LabelWidget(QString text)
+	explicit LabelWidget(QString text)
 	{
 		label.setObjectName(get_unique_name("(LabelWidget)label-"));
 		layout.setObjectName(get_unique_name("(LabelWidget)layout-"));

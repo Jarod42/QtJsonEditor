@@ -54,8 +54,8 @@ namespace integer
 	IntegerStyleSelectorWidget::IntegerStyleSelectorWidget(QJsonValue schema) :
 		schema(schema)
 	{
-		styleComboBox.addItem("", int(EStyle::LineEdit));
-		styleComboBox.addItem("", int(EStyle::Spinbox));
+		styleComboBox.addItem("", static_cast<int>(EStyle::LineEdit));
+		styleComboBox.addItem("", static_cast<int>(EStyle::Spinbox));
 
 		const auto style = toEStyle(schema[json_keys::key_style].toString());
 		constexpr auto defaultStyle = EStyle::LineEdit;
@@ -101,8 +101,9 @@ namespace integer
 		styleLabel.setText(IJsonWidget::tr("style:"));
 		for (int i = 0; i != styleComboBox.count(); ++i)
 		{
-			styleComboBox.setItemText(
-				i, integer::tr(EStyle(styleComboBox.itemData(i).toInt())));
+			styleComboBox.setItemText(i,
+			                          integer::tr(static_cast<EStyle>(
+										  styleComboBox.itemData(i).toInt())));
 		}
 	}
 

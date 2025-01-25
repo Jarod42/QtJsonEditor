@@ -12,7 +12,7 @@ class IJsonWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	virtual ~IJsonWidget() noexcept = default;
+	~IJsonWidget() noexcept override = default;
 
 	virtual QJsonValue toQJson() const = 0;
 	virtual void fromQJson(QJsonValue) = 0;

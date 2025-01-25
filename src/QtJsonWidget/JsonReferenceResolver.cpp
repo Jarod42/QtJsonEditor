@@ -37,8 +37,7 @@ namespace
 
 } // namespace
 //------------------------------------------------------------------------------
-JsonReferenceResolver::JsonReferenceResolver()
-{}
+JsonReferenceResolver::JsonReferenceResolver() = default;
 
 //------------------------------------------------------------------------------
 void JsonReferenceResolver::setSchemaRoot(QJsonValue json)

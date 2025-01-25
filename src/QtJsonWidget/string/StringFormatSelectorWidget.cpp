@@ -58,9 +58,9 @@ namespace
 StringFormatSelectorWidget::StringFormatSelectorWidget(QJsonValue schema) :
 	schema(schema)
 {
-	formatComboBox.addItem("", int(EFormat::String));
-	formatComboBox.addItem("", int(EFormat::Color));
-	formatComboBox.addItem("", int(EFormat::Date));
+	formatComboBox.addItem("", static_cast<int>(EFormat::String));
+	formatComboBox.addItem("", static_cast<int>(EFormat::Color));
+	formatComboBox.addItem("", static_cast<int>(EFormat::Date));
 
 	const auto format = toEFormat(schema[json_keys::key_format].toString());
 	constexpr auto defaultFormat = EFormat::String;
@@ -106,7 +106,7 @@ void StringFormatSelectorWidget::retranslateUi()
 	for (int i = 0; i != formatComboBox.count(); ++i)
 	{
 		formatComboBox.setItemText(
-			i, ::tr(EFormat(formatComboBox.itemData(i).toInt())));
+			i, ::tr(static_cast<EFormat>(formatComboBox.itemData(i).toInt())));
 	}
 }
 

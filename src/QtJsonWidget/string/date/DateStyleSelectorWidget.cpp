@@ -51,8 +51,8 @@ namespace
 DateStyleSelectorWidget::DateStyleSelectorWidget(QJsonValue schema) :
 	schema(schema)
 {
-	styleComboBox.addItem("", int(EStyle::Calendar));
-	styleComboBox.addItem("", int(EStyle::DateEdit));
+	styleComboBox.addItem("", static_cast<int>(EStyle::Calendar));
+	styleComboBox.addItem("", static_cast<int>(EStyle::DateEdit));
 
 	const auto style = toEStyle(schema[json_keys::key_style].toString());
 	constexpr auto defaultStyle = EStyle::Calendar;
@@ -97,7 +97,7 @@ void DateStyleSelectorWidget::retranslateUi()
 	for (int i = 0; i != styleComboBox.count(); ++i)
 	{
 		styleComboBox.setItemText(
-			i, ::tr(EStyle(styleComboBox.itemData(i).toInt())));
+			i, ::tr(static_cast<EStyle>(styleComboBox.itemData(i).toInt())));
 	}
 }
 

@@ -14,7 +14,7 @@ class EditorDialog : public QMainWindow
 	Q_OBJECT
 public:
 	EditorDialog(QTranslator& qt, QTranslator& app, QWidget* parent = nullptr);
-	~EditorDialog();
+	~EditorDialog() override;
 
 	void changeEvent(QEvent*) override;
 
@@ -34,5 +34,5 @@ private:
 	std::unique_ptr<Ui::EditorDialog> ui;
 	QTranslator& qtTranslator;
 	QTranslator& translator;
-	EState state;
+	EState state{};
 };
