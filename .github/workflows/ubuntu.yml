@@ -43,7 +43,7 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 
     # Premake
-    - uses: Jarod42/install-premake5@v1
+    - uses: Jarod42/install-premake5@v3
 
     - name: build with premake
       run: |
