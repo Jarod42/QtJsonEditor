@@ -17,7 +17,7 @@ jobs:
           - qt-arch: 'win64_msvc2019_64' # No 2022 version yet
 
     steps:
-    - uses: Jarod42/install-premake5@v4
+    - uses: Jarod42/install-premake5@v5
 
     - name: Checkout
       uses: actions/checkout@v4
