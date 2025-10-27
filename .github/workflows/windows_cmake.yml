@@ -41,7 +41,7 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release
 
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: qt-json-editor-qt${{matrix.qt-version}}
         path: |
