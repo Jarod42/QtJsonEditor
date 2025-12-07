@@ -21,9 +21,9 @@ namespace
 	}
 
 	//--------------------------------------------------------------------------
-	QJsonObject merge_but_ref(QJsonObject outter, QJsonObject inner)
+	QJsonObject merge_but_ref(QJsonObject outer, QJsonObject inner)
 	{
-		auto res = outter;
+		auto res = outer;
 
 		for (auto it = inner.constBegin(); it != inner.constEnd(); ++it)
 		{
