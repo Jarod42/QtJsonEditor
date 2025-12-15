@@ -40,7 +40,7 @@ jobs:
         premake5 vs2022 --qt-root=$Env:QT_ROOT_DIR --qt-version=${{matrix.qt-version}} && cd solution/vs2022 && msbuild.exe /property:Configuration=Release /property:Platform=x64 qt-json-editor.sln
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: qt-json-editor-qt${{matrix.qt-version}}
         path: |
